@@ -230,7 +230,7 @@ function CN_CheckNewMessages() {
 		// New message! is it complete?
 		var currentText = jQuery(".text-base:last").find(".items-start").text() + "";
 
-
+		const sentences = CN_SplitIntoSentences(currentText);
 		if (currentText.length > 1 && currentText == CN_PARTIAL_TEXT) {
 			CN_MESSAGE_COUNT = currentMessageCount;
 			console.log("New message detected! CN_MESSAGE_COUNT: " + CN_MESSAGE_COUNT);
@@ -246,6 +246,9 @@ function CN_CheckNewMessages() {
 
 			CN_SayOutLoud(currentText);
 			CN_PARTIAL_TEXT = "";
+		}
+		else if (sentences.length > 1) {
+			//start speaking first sentence
 		}
 		else {
 			CN_PARTIAL_TEXT = currentText;
@@ -668,11 +671,6 @@ function CN_InitScript() {
 			if (!CN_WANTED_VOICE)
 				console.log("No voice found for '" + CN_WANTED_VOICE_NAME + "', reading with default browser voice");
 		}
-
-		// Voice OK
-		setTimeout(function () {
-			//CN_SayOutLoud("OK");
-		}, 1000);
 	};
 
 	// Add icons on the top right corner
