@@ -230,32 +230,29 @@ function CN_CheckNewMessages() {
 		// New message! is it complete?
 		var currentText = jQuery(".text-base:last").find(".items-start").text() + "";
 
-		const sentences = CN_SplitIntoSentences(currentText);
+		
 		if (currentText.length > 1 && currentText == CN_PARTIAL_TEXT) {
 			CN_MESSAGE_COUNT = currentMessageCount;
 			console.log("New message detected! CN_MESSAGE_COUNT: " + CN_MESSAGE_COUNT);
 			
 			var currentText = jQuery(".text-base:last").find(".items-start").text() + "";
-			console.log(currentText);
-			console.log(currentText.length);
-			console.log(jQuery(".text-base:last"));
-			console.log(jQuery(".text-base:last").find(".items-start"));
-			console.log(jQuery(".text-base:last").find(".items-start").text() + "");
-			console.log(!currentText.length);
-			console.log(currentText != jQuery(".text-base:last").find(".items-start").text() + "");
 
 			CN_SayOutLoud(currentText);
 			CN_PARTIAL_TEXT = "";
-		}
-		else if (sentences.length > 1) {
-			//start speaking first sentence
-		}
-		else {
+		} else {
+			const sentences = CN_SplitIntoSentences(currentText);
+			if (sentences.length > 1 && !CN_IS_READING) {
+				console.log("Speaking first sentence: " + sentences[0]);
+				CN_SayOutLoud(sentences[0]);
+			} else {
+				console.log(sentences)
+				console.log(CN_IS_READING)
+			}
 			CN_PARTIAL_TEXT = currentText;
 		}
 	}
 
-	setTimeout(CN_CheckNewMessages, 250);
+	setTimeout(CN_CheckNewMessages, 500);
 }
 
 // Send a message to the bot (will simply put text in the textarea and simulate a send button click)
