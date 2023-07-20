@@ -45,12 +45,31 @@ var CN_WANTED_VOICE_NAME = "";
 // Ignore code blocks - anything contained in <pre>
 var CN_IGNORE_CODE_BLOCKS = false;
 
+// Use ElevenLabs for TTS
+var CN_TTS_ELEVENLABS = false;
+
+// ElevenLabs API key
+var CN_TTS_ELEVENLABS_APIKEY = "";
+
+// ElevenLabs voice
+var CN_TTS_ELEVENLABS_VOICE = "";
+
+// Statically list ElevenLabs models (easier than to request from API)
+var CN_TTS_ELEVENLABS_MODELS = { "eleven_monolingual_v1": "English only", "eleven_multilingual_v1": "Multi-language (autodetect)" };
+
+// Other ElevenLabs settings
+var CN_TTS_ELEVENLABS_STABILITY = "";
+var CN_TTS_ELEVENLABS_SIMILARITY = "";
+
 // ----------------------------
 
 
 // -------------------
 // CODE (DO NOT ALTER)
 // -------------------
+var CN_START_TIME = 0
+var CN_END_TIME = 0
+var CN_IS_TALKING = false
 var CN_PARTIAL_TEXT = "";
 var CN_MESSAGE_COUNT = 0;
 var CN_CURRENT_MESSAGE = null;
@@ -67,11 +86,12 @@ var CN_SPEAKING_DISABLED = false;
 var CN_SPEECHREC_DISABLED = false;
 var CN_CONVERSATION_SUSPENDED = false;
 var CN_BAR_COLOR_FLASH_GREY = false;
+var CN_TTS_ELEVENLABS_QUEUE = [];
 var CN_IS_CONVERTING = false;
 var CN_IS_PLAYING = false;
 var CN_CURRENT_AUDIO = null;
 
-// This function will say the given text out loud using the browser's speech synthesis API
+// This function will say the given text out loud using the browser's speech synthesis API, or send the message to the ElevenLabs conversion stack
 function CN_SayOutLoud(text) {
 	// If TTS is disabled and there's nothing to say, ensure speech recognition is started
 	if (!text || CN_SPEAKING_DISABLED) {
@@ -100,6 +120,14 @@ function CN_SayOutLoud(text) {
 		CN_IS_LISTENING = false; // Ensure this flag is set to false here
 	}
 
+	console.time('t2s lag')
+	// What is the TTS method?
+	if (CN_TTS_ELEVENLABS) {
+		// We are using ElevenLabs, so push message to queue
+		CN_SayOutLoudElevenLabs(text);
+		return;
+	}
+
 	// Let's speak out loud with the browser's text-to-speech API
 	console.log("[BROWSER] Saying out loud: " + text);
 	var msg = new SpeechSynthesisUtterance();
@@ -109,6 +137,8 @@ function CN_SayOutLoud(text) {
 	msg.rate = CN_TEXT_TO_SPEECH_RATE;
 	msg.pitch = CN_TEXT_TO_SPEECH_PITCH;
 	msg.onstart = () => {
+		console.timeEnd('t2s lag')
+		console.timeEnd('total')
 		// Make border green
 		$("#CNStatusBar").css("background", "green");
 
@@ -121,11 +151,263 @@ function CN_SayOutLoud(text) {
 		CN_TIMEOUT_KEEP_SYNTHESIS_WORKING = setTimeout(CN_KeepSpeechSynthesisActive, 5000);
 	};
 	msg.onend = () => {
+		CN_IS_TALKING = false;
+		console.log('ended speech')
 		CN_AfterSpeakOutLoudFinished();
 	}
 	CN_IS_READING = true;
+	CN_IS_TALKING = true;
+	console.log('started speech');
 	window.speechSynthesis.speak(msg);
 }
+
+// Say a message out loud using ElevenLabs
+function CN_SayOutLoudElevenLabs(text) {
+	// Make border green
+	$("#CNStatusBar").css("background", "green");
+
+	// Push message into queue (sequentially)
+	CN_TTS_ELEVENLABS_QUEUE.push({
+		index: CN_TTS_ELEVENLABS_QUEUE.length, // message index
+		text: text, // message text
+		audio: null, // message blob / audio URL to be played
+		converted: false, // has it been converted to audio yet?
+		played: false // has it been played yet?
+	});
+
+	// If the TTS conversion task isn't running, run it
+	if (!CN_IS_CONVERTING) CN_ConvertTTSElevenLabs();
+}
+
+// Process next item in conversion queue
+function CN_ConvertTTSElevenLabs() {
+	// Start converting TTS
+	CN_IS_CONVERTING = true;
+
+	// Identify next message to be converted
+	var obj = null;
+	var objIndex = null;
+	for (var i in CN_TTS_ELEVENLABS_QUEUE) {
+		if (!CN_TTS_ELEVENLABS_QUEUE[i].converted) {
+			obj = CN_TTS_ELEVENLABS_QUEUE[i];
+			objIndex = i;
+			break;
+		}
+	}
+
+	// If we didn't find an object to convert, then we are done
+	if (obj === null) {
+		CN_IS_CONVERTING = false;
+		return;
+	}
+
+	// Get model and voice ID
+	var parts = CN_TTS_ELEVENLABS_VOICE.split(".");
+	var model = parts[0];
+	var voiceId = typeof parts[1] == "undefined" ? "" : parts[1];
+
+	// Tell the console for debugging
+	console.log("[ELEVENLABS] Converting following text segment to audio using model " + model + " and voice " + voiceId + ": " + obj.text);
+
+	// We found an object to convert
+	// Prepare request and headers
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", "https://api.elevenlabs.io/v1/text-to-speech/" + voiceId + "?optimize_streaming_latency=4");
+	xhr.setRequestHeader("Accept", "audio/mpeg");
+	xhr.setRequestHeader("Content-Type", "application/json");
+	xhr.setRequestHeader("xi-api-key", CN_TTS_ELEVENLABS_APIKEY)
+	xhr.responseType = "arraybuffer";
+
+	// Prepare request body
+	var body = {
+		text: obj.text,
+		model_id: model,
+	};
+
+	// Set voice settings
+	if (CN_TTS_ELEVENLABS_STABILITY != "" || CN_TTS_ELEVENLABS_SIMILARITY != "") {
+		// Prepare voice settings
+		var voice_settings = {
+			"stability": 0,
+			"similarity_boost": 0
+		};
+		try {
+			voice_settings["stability"] = parseFloat(CN_TTS_ELEVENLABS_STABILITY);
+			voice_settings["similarity_boost"] = parseFloat(CN_TTS_ELEVENLABS_SIMILARITY);
+		} catch (e) {
+			voice_settings = {
+				"stability": 0,
+				"similarity_boost": 0
+			};
+		}
+
+		// Control values
+		if (voice_settings["stability"] === null || voice_settings["stability"] < 0 || voice_settings["stability"] > 1 || isNaN(voice_settings["stability"])) voice_settings["stability"] = 0;
+		if (voice_settings["similarity_boost"] === null || voice_settings["similarity_boost"] < 0 || voice_settings["similarity_boost"] > 1 || isNaN(voice_settings["similarity_boost"])) voice_settings["similarity_boost"] = 0;
+
+		// Set values into body
+		body["voice_settings"] = voice_settings;
+	}
+
+	// What happens when we get the response
+	xhr.onreadystatechange = function () {
+		if (xhr.readyState === XMLHttpRequest.DONE) {
+
+			try {
+				var status = xhr.status;
+				console.log("Received status from ElevenLabs: " + status);
+
+				// Read response and see what's inside
+				var resp = this.response;
+
+				// Was there an error?
+				try {
+					if (status !== 200) {
+						// Decode the arrayBuffer into text
+						var decoder = new TextDecoder('utf-8');
+						var responseText = decoder.decode(resp);
+
+						// Parse the JSON data
+						var result = JSON.parse(responseText);
+
+						// Problem?
+						if (typeof result.detail != "undefined" && typeof result.detail.status != "undefined") {
+							// Error! But what is it?
+							if (result.detail.status == "too_many_concurrent_requests") {
+								// Try again after 1 second
+								setTimeout(function () {
+									console.log("[ELEVENLABS] Too many concurrent requests");
+									CN_ConvertTTSElevenLabs();
+								}, 1000);
+								return;
+							} else {
+								// Show error and stop everything
+								CN_IS_CONVERTING = false;
+								CN_IS_READING = false;
+								CN_TTS_ELEVENLABS_QUEUE = [];
+								alert("[1] ElevenLabs API error: " + result.detail.message);
+								CN_AfterSpeakOutLoudFinished();
+								return;
+							}
+						}
+						else {
+							CN_IS_CONVERTING = false;
+							CN_IS_READING = false;
+							CN_TTS_ELEVENLABS_QUEUE = [];
+							alert("[2] ElevenLabs API error: " + responseText);
+							CN_AfterSpeakOutLoudFinished();
+							return;
+						}
+					}
+				} catch (e) {
+					CN_IS_CONVERTING = false;
+					CN_IS_READING = false;
+					CN_TTS_ELEVENLABS_QUEUE = [];
+					alert("[3] ElevenLabs API error: " + e.toString());
+					CN_AfterSpeakOutLoudFinished();
+					return;
+				}
+
+				// No error. So we have blob data, we can make an audio file
+				var blob = new Blob([resp], { "type": "audio/mpeg" });
+				var audioURL = window.URL.createObjectURL(blob);
+
+				// Has the queue been reset? (if we clicked Skip, or if we stopped audio playback)
+				if (CN_TTS_ELEVENLABS_QUEUE.length == 0) return;
+
+				CN_TTS_ELEVENLABS_QUEUE[objIndex].audio = audioURL;
+				CN_TTS_ELEVENLABS_QUEUE[objIndex].converted = true;
+				console.log("[ELEVENLABS] Text converted to audio successfully");
+
+				// What's next?
+				setTimeout(function () {
+					// Continue conversions if any
+					CN_ConvertTTSElevenLabs();
+
+					// Start audio playback if not already
+					if (!CN_IS_PLAYING) CN_ContinueElevenLabsPlaybackQueue();
+				}, 100);
+
+
+			} catch (e) {
+				alert("Error with ElevenLabs API text-to-speech conversion: " + e.toString());
+			}
+		}
+	};
+
+	// Sending to TTS API
+	xhr.send(JSON.stringify(body));
+}
+
+// Process the next item in the audio queue
+function CN_ContinueElevenLabsPlaybackQueue() {
+	CN_IS_PLAYING = true;
+	CN_IS_READING = true;
+
+	// Identify next message to be played
+	var obj = null;
+	var objIndex = null;
+	for (var i in CN_TTS_ELEVENLABS_QUEUE) {
+		if (CN_TTS_ELEVENLABS_QUEUE[i].converted && !CN_TTS_ELEVENLABS_QUEUE[i].played) {
+			obj = CN_TTS_ELEVENLABS_QUEUE[i];
+			objIndex = i;
+			break;
+		}
+	}
+
+	// If we didn't find an object to play, then we are done
+	if (obj === null) {
+		CN_IS_PLAYING = false;
+		CN_IS_READING = false;
+
+		// Current audio stack complete
+		console.log("[ELEVENLABS] Current stack of audio messages complete");
+
+		// If there is no longer anything to convert or to play, we can resume listening
+		var canResumeListening = true;
+		for (var i in CN_TTS_ELEVENLABS_QUEUE) {
+			if (!CN_TTS_ELEVENLABS_QUEUE[i].played || !CN_TTS_ELEVENLABS_QUEUE[i].converted) {
+				canResumeListening = false;
+				break;
+			}
+		}
+
+		// Finished playing
+		if (canResumeListening) {
+			setTimeout(function () {
+				CN_AfterSpeakOutLoudFinished();
+			}, 250);
+		}
+
+		return;
+	}
+
+	console.log("[ELEVENLABS] Playback of message " + objIndex + ": " + obj.text);
+
+	// Create audio object, set data
+	CN_CURRENT_AUDIO = new Audio();
+	CN_CURRENT_AUDIO.src = obj.audio;
+
+	// What happens when ended?
+	CN_CURRENT_AUDIO.onended = function () {
+
+		setTimeout(function () {
+			// Start audio playback if not already
+			CN_ContinueElevenLabsPlaybackQueue();
+		}, 100);
+
+	};
+
+	// Annnnd... action!
+	console.timeEnd('t2s lag');
+	console.timeEnd('total');
+	CN_CURRENT_AUDIO.play();
+
+	// Mark as played so it doesn't play twice
+	CN_TTS_ELEVENLABS_QUEUE[objIndex].played = true;
+	CN_TTS_ELEVENLABS_QUEUE[objIndex].audio = null; // Erase audio from memory
+}
+
 
 // Occurs when speaking out loud is finished
 function CN_AfterSpeakOutLoudFinished() {
@@ -204,7 +486,7 @@ async function CN_GetMessageText() {
 
 	var currentText = ''
 	while (currentText.length < 2 || currentText != jQuery(".text-base:last").find(".items-start").text() + "") {
-		await setTimeout(function() {return}, 100);
+		await setTimeout(function () { return }, 100);
 		currentText = jQuery(".text-base:last").find(".items-start").text() + "";
 	}
 
@@ -230,23 +512,30 @@ function CN_CheckNewMessages() {
 		// New message! is it complete?
 		var currentText = jQuery(".text-base:last").find(".items-start").text() + "";
 
-		
+
 		if (currentText.length > 1 && currentText == CN_PARTIAL_TEXT) {
 			CN_MESSAGE_COUNT = currentMessageCount;
 			console.log("New message detected! CN_MESSAGE_COUNT: " + CN_MESSAGE_COUNT);
-			
+
 			var currentText = jQuery(".text-base:last").find(".items-start").text() + "";
+			const sentences = CN_SplitIntoSentences(currentText);
+			const firstSentenceLength = sentences[0].length;
+
+			if (CN_IS_TALKING) {
+				currentText = currentText.slice(firstSentenceLength)
+			}
 
 			CN_SayOutLoud(currentText);
 			CN_PARTIAL_TEXT = "";
 		} else {
 			const sentences = CN_SplitIntoSentences(currentText);
-			if (sentences.length > 1 && !CN_IS_READING) {
+			if (sentences.length > 1 && !CN_IS_TALKING) {
+				console.timeEnd('response');
 				console.log("Speaking first sentence: " + sentences[0]);
 				CN_SayOutLoud(sentences[0]);
 			} else {
 				console.log(sentences)
-				console.log(CN_IS_READING)
+				console.log(CN_IS_TALKING)
 			}
 			CN_PARTIAL_TEXT = currentText;
 		}
@@ -274,6 +563,8 @@ function CN_SendMessage(text) {
 	// Send the message, if autosend is enabled
 	jQuery("#prompt-textarea").closest("div").find("button").prop("disabled", false);
 	if (CN_AUTO_SEND_AFTER_SPEAKING) {
+		console.time('response');
+		console.log('sending message')
 		jQuery("#prompt-textarea").closest("div").find("button").click();
 
 		// Stop speech recognition until the answer is received
@@ -345,7 +636,7 @@ function CN_StartSpeechRecognition() {
 		return;
 	}
 	if (!CN_SPEECH_REC_SUPPORTED) return;
-	CN_SPEECHREC = new webkitSpeechRecognition();
+	CN_SPEECHREC = ('webkitSpeechRecognition' in window) ? new webkitSpeechRecognition() : new SpeechRecognition();
 	CN_SPEECHREC.continuous = true;
 	CN_SPEECHREC.lang = CN_WANTED_LANGUAGE_SPEECH_REC;
 	CN_SPEECHREC.onstart = () => {
@@ -361,12 +652,17 @@ function CN_StartSpeechRecognition() {
 
 		CN_IS_LISTENING = false;
 		console.log("I've stopped listening");
+		console.timeEnd('s2t')
+		console.timeEnd('total')
+		console.time('s2t')
+		console.time('total')
 	};
-	CN_SPEECHREC.onerror = () => {
+	CN_SPEECHREC.onerror = (event) => {
 		CN_IS_LISTENING = false;
-		console.log("Error while listening");
+		console.log("Error while listening: " + event.error);
 	};
 	CN_SPEECHREC.onresult = (event) => {
+		console.timeEnd('s2t')
 		var final_transcript = "";
 		for (let i = event.resultIndex; i < event.results.length; ++i) {
 			if (event.results[i].isFinal)
@@ -541,6 +837,16 @@ function CN_ToggleButtonClick() {
 			$(".CNToggle[data-cn=speakoff]").css("display", "");
 			CN_SPEAKING_DISABLED = true;
 
+			// Is there anything in the CN_TTS_ELEVENLABS_QUEUE ? clear it
+			if (CN_TTS_ELEVENLABS_QUEUE.length) {
+				CN_TTS_ELEVENLABS_QUEUE = [];
+				if (CN_CURRENT_AUDIO) CN_CURRENT_AUDIO.pause();
+				CN_CURRENT_AUDIO = null;
+				CN_IS_PLAYING = false;
+				CN_IS_READING = false;
+				CN_IS_CONVERTING = false;
+			}
+
 			// Stop current message (equivalent to 'skip')
 			window.speechSynthesis.pause(); // Pause, and then...
 			window.speechSynthesis.cancel(); // Cancel everything
@@ -566,6 +872,17 @@ function CN_ToggleButtonClick() {
 
 		// Skip current message being read
 		case "skip":
+
+			// Is there anything in the CN_TTS_ELEVENLABS_QUEUE ?  clear it
+			if (CN_TTS_ELEVENLABS_QUEUE.length) {
+				CN_TTS_ELEVENLABS_QUEUE = [];
+				if (CN_CURRENT_AUDIO) CN_CURRENT_AUDIO.pause();
+				CN_CURRENT_AUDIO = null;
+				CN_IS_PLAYING = false;
+				CN_IS_READING = false;
+				CN_IS_CONVERTING = false;
+			}
+
 			window.speechSynthesis.pause(); // Pause, and then...
 			window.speechSynthesis.cancel(); // Cancel everything
 			CN_CURRENT_MESSAGE = null; // Remove current message
@@ -615,6 +932,14 @@ function CN_StartTTGPT() {
 	setTimeout(function () {
 		// Start speech rec
 		CN_StartSpeechRecognition();
+
+		// Make sure message count starts from last; we don't want to read the latest message
+		var currentMessageCount = jQuery(".text-base").length;
+		if (currentMessageCount > CN_MESSAGE_COUNT) {
+			// New message!
+			CN_MESSAGE_COUNT = currentMessageCount;
+			CN_CURRENT_MESSAGE = null; // Set current message to null
+		}
 
 		// Check for new messages
 		CN_CheckNewMessages();
@@ -668,6 +993,11 @@ function CN_InitScript() {
 			if (!CN_WANTED_VOICE)
 				console.log("No voice found for '" + CN_WANTED_VOICE_NAME + "', reading with default browser voice");
 		}
+
+		// Voice OK
+		setTimeout(function () {
+			//CN_SayOutLoud("OK");
+		}, 1000);
 	};
 
 	// Add icons on the top right corner
@@ -681,7 +1011,7 @@ function CN_InitScript() {
 		"<a href='https://github.com/C-Nedelcu/talk-to-chatgpt' " +
 		"style='display: inline-block; font-size: 20px; line-height: 80%; padding: 8px 0;' " +
 		"target=_blank title='Visit project website'>TALK-TO-ChatGPT<br />" +
-		"<div style='text-align: right; font-size: 12px; color: grey'>VCustom-msl</div>" +
+		"<div style='text-align: right; font-size: 12px; color: grey'>Vmsl-lowlatency-elevenlabs</div>" +
 		"</a>" +
 		"</div>" +
 
@@ -873,6 +1203,26 @@ function CN_OnSettingsIconClick() {
 	// 3. AI voice pitch
 	rows += "<tr class='CNBrowserTTS' ><td style='white-space: nowrap'>AI voice pitch:</td><td><input type=number step='.1' id='TTGPTPitch' style='width: 100px; padding: 2px; color: black;' value='" + CN_TEXT_TO_SPEECH_PITCH + "' /></td></tr>";
 
+	// 4. ElevenLabs
+	rows += "<tr><td style='white-space: nowrap'>ElevenLabs text-to-speech:</td><td><input type=checkbox id='TTGPTElevenLabs' " + (CN_TTS_ELEVENLABS ? "checked=checked" : "") + " /> <label for='TTGPTElevenLabs'> Use ElevenLabs API for text-to-speech (tick this to reveal additional settings)</label></td></tr>";
+
+	// 5. ElevenLabs API key
+	rows += "<tr class='CNElevenLabs' style='display: none;'><td style='white-space: nowrap'>ElevenLabs API Key:</td><td><input type=text style='width: 250px; padding: 2px; color: black;' id='TTGPTElevenLabsKey' value=\"" + (CN_TTS_ELEVENLABS_APIKEY) + "\" /></td></tr>";
+
+	// 6. ElevenLabs voice
+	rows += "<tr class='CNElevenLabs' style='display: none;'><td style='white-space: nowrap'>ElevenLabs voice:</td><td><select id='TTGPTElevenLabsVoice' style='width: 250px; padding: 2px; color: black;' >" + "</select> <span style='cursor: pointer; text-decoration: underline;' id='TTGPTElevenLabsRefresh' title='This will refresh the list of voices using your API key'>Refresh list</span></span></td></tr>";
+
+	// 7. ElevenLabs settings
+	rows += "<tr class='CNElevenLabs' style='display: none;'><td style='white-space: nowrap'>ElevenLabs settings:</td>" +
+		"<td>" +
+		"Stability: <input type=number style='width: 100px; padding: 2px; color: black;' step='0.01' min='0' max='1' id='TTGPTElevenLabsStability' value=\"" + (CN_TTS_ELEVENLABS_STABILITY) + "\" />" +
+		"Similarity: <input type=number style='width: 100px; padding: 2px; color: black;' step='0.01' min='0' max='1' id='TTGPTElevenLabsSimilarity' value=\"" + (CN_TTS_ELEVENLABS_SIMILARITY) + "\" />" +
+		"<br />Leave blank for default, or set a number between 0 and 1 (example: 0.75)"
+	"</td></tr>";
+
+	// 7. ElevenLabs warning
+	rows += "<tr class='CNElevenLabs' style='display: none;'><td colspan=2>Warning: the ElevenLabs API is experimental. It doesn't work with every language, make sure you check the list of supported language from their website. We will keep up with ElevenLabs progress to ensure all ElevenLabs API functionality is available in Talk-to-ChatGPT.</td></tr>";
+
 	// Prepare save/close buttons
 	rows += "<tr><td colspan=2 style='text-align: center'><br />" +
 		"<button class='TTGPTSave' style='border: 2px solid grey; border-radius: 4px; padding: 6px 24px; font-size: 18px; font-weight: bold; opacity: 0.7;'>✓ Save</button>&nbsp;" +
@@ -941,6 +1291,41 @@ function CN_OnSettingsIconClick() {
 	setTimeout(function () {
 		jQuery(".TTGPTSave").on("click", CN_SaveSettings);
 		jQuery(".TTGPTCancel").on("click", CN_CloseSettingsDialog);
+
+		// Is ElevenLabs enabled? toggle visibility, refresh voice list
+		if (CN_TTS_ELEVENLABS) {
+			jQuery(".CNElevenLabs").show();
+			jQuery(".CNBrowserTTS").hide();
+			CN_RefreshElevenLabsVoiceList(true);
+		} else {
+			jQuery(".CNElevenLabs").hide();
+			jQuery(".CNBrowserTTS").show();
+		}
+
+		// When the ElevenLabs option is changed
+		jQuery("#TTGPTElevenLabs").on("change", function () {
+			if (jQuery(this).prop("checked")) {
+				jQuery(".CNElevenLabs").show();
+				jQuery(".CNBrowserTTS").hide();
+				CN_RefreshElevenLabsVoiceList(true);
+			}
+			else {
+				jQuery(".CNElevenLabs").hide();
+				jQuery(".CNBrowserTTS").show();
+			}
+		});
+
+		// When the 'Refresh list' button is clicked
+		jQuery("#TTGPTElevenLabsRefresh").on("click", function () {
+			CN_RefreshElevenLabsVoiceList(true);
+		});
+
+		// When the API key is changed
+		jQuery("#TTGPTElevenLabsKey").on("change", function () {
+			CN_RefreshElevenLabsVoiceList(true);
+		});
+
+
 	}, 100);
 }
 
@@ -967,6 +1352,19 @@ function CN_SaveSettings() {
 		CN_IGNORE_COMMAS = jQuery("#TTGPTIgnoreCommas").prop("checked");
 		CN_IGNORE_CODE_BLOCKS = jQuery("#TTGPTIgnoreCode").prop("checked");
 
+		// ElevenLabs
+		CN_TTS_ELEVENLABS = jQuery("#TTGPTElevenLabs").prop("checked");
+		CN_TTS_ELEVENLABS_APIKEY = CN_RemovePunctuation(jQuery("#TTGPTElevenLabsKey").val() + "");
+		CN_TTS_ELEVENLABS_VOICE = jQuery("#TTGPTElevenLabsVoice").val() + "";
+		CN_TTS_ELEVENLABS_STABILITY = jQuery("#TTGPTElevenLabsStability").val();
+		CN_TTS_ELEVENLABS_SIMILARITY = jQuery("#TTGPTElevenLabsSimilarity").val();
+
+		// If ElevenLabs is active, and that there is no voice, error out
+		if (CN_TTS_ELEVENLABS && !CN_TTS_ELEVENLABS_VOICE) {
+			alert("To enable ElevenLabs support, you must select a voice in the dropdown list. Click the Refresh List button. If no voice appears in the list, check your API key. If you are 100% sure your API key is valid, please report the issue on the Github project page, on the Issues tab.");
+			return;
+		}
+
 		// Apply language to speech recognition instance
 		if (CN_SPEECHREC) CN_SPEECHREC.lang = CN_WANTED_LANGUAGE_SPEECH_REC;
 
@@ -983,6 +1381,11 @@ function CN_SaveSettings() {
 			CN_IGNORE_COMMAS ? 1 : 0,
 			CN_KEEP_LISTENING ? 1 : 0,
 			CN_IGNORE_CODE_BLOCKS ? 1 : 0,
+			CN_TTS_ELEVENLABS ? 1 : 0,
+			CN_TTS_ELEVENLABS_APIKEY,
+			CN_TTS_ELEVENLABS_VOICE,
+			CN_TTS_ELEVENLABS_STABILITY,
+			CN_TTS_ELEVENLABS_SIMILARITY
 		];
 		CN_SetCookie("CN_TTGPT", JSON.stringify(settings));
 	} catch (e) { alert('Invalid settings values. ' + e.toString()); return; }
@@ -1013,6 +1416,11 @@ function CN_RestoreSettings() {
 			if (settings.hasOwnProperty(8)) CN_IGNORE_COMMAS = settings[8] == 1;
 			if (settings.hasOwnProperty(9)) CN_KEEP_LISTENING = settings[9] == 1;
 			if (settings.hasOwnProperty(10)) CN_IGNORE_CODE_BLOCKS = settings[10] == 1;
+			if (settings.hasOwnProperty(11)) CN_TTS_ELEVENLABS = settings[11] == 1;
+			if (settings.hasOwnProperty(12)) CN_TTS_ELEVENLABS_APIKEY = settings[12];
+			if (settings.hasOwnProperty(13)) CN_TTS_ELEVENLABS_VOICE = settings[13];
+			if (settings.hasOwnProperty(14)) CN_TTS_ELEVENLABS_STABILITY = settings[14];
+			if (settings.hasOwnProperty(15)) CN_TTS_ELEVENLABS_SIMILARITY = settings[15];
 		}
 	} catch (ex) {
 		console.error(ex);
@@ -1058,6 +1466,72 @@ function CN_GetCookie(name) {
 	return null;
 }
 
+// Refresh ElevenLabs voice list using current API key
+function CN_RefreshElevenLabsVoiceList(useKeyFromTextField) {
+	// Show loading thingy
+	jQuery("#TTGPTElevenLabsRefresh").html("...");
+
+	// Prepare headers & request
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "https://api.elevenlabs.io/v1/voices");
+	xhr.setRequestHeader("Accept", "application/json");
+	xhr.setRequestHeader("Content-Type", "application/json");
+	var apikey = useKeyFromTextField ? jQuery("#TTGPTElevenLabsKey").val() : CN_TTS_ELEVENLABS_APIKEY;
+	if (apikey) xhr.setRequestHeader("xi-api-key", apikey);
+
+	// What happens when we receive the server response
+	xhr.onreadystatechange = function () {
+		var optionList = "<option value=''></option>";
+		if (xhr.readyState === XMLHttpRequest.DONE) {
+			jQuery("#TTGPTElevenLabsRefresh").html("Refresh list");
+
+			var result = null;
+			try {
+				result = JSON.parse(xhr.responseText);
+			} catch (e) {
+				jQuery("#TTGPTElevenLabsRefresh").html("Refresh list");
+				alert("Error retrieving ElevenLabs voice list: " + e.toString() + ". Please ensure you have a valid API key and try clicking Refresh List again.");
+				return;
+			}
+
+			// Check result type?
+			if (typeof result.voices == "undefined") {
+				if (typeof result.detail != "undefined" && typeof result.detail.message != "undefined") {
+					// {"detail":{"status":"invalid_api_key","message":"Invalid API key: 'apikey'"}}
+					alert("ElevenLabs returned the following while refreshing the voice list: " + result.detail.message);
+					return;
+				}
+				// Other
+				alert("Unexpected response from ElevenLabs API: " + JSON.stringify(result));
+				return;
+			}
+
+			// Build list of models
+			var found = false;
+			for (var modelId in CN_TTS_ELEVENLABS_MODELS) {
+				var modelName = CN_TTS_ELEVENLABS_MODELS[modelId];
+				optionList += "<optgroup label=\"" + modelName + "\">";
+				for (var i = 0; i < result.voices.length; i++) {
+					var name = result.voices[i].name;
+					var id = modelId + "." + result.voices[i].voice_id;
+					var sel = id == CN_TTS_ELEVENLABS_VOICE ? "selected=selected" : ""; // Restore selected voice
+					if (sel) found = true;
+					optionList += "<option value='" + id + "' " + sel + ">" + name + "</option>";
+				}
+				optionList += "</optgroup>";
+			}
+			jQuery("#TTGPTElevenLabsVoice").html(optionList);
+
+			// The voice previously selected no longer seems to exist
+			if (CN_TTS_ELEVENLABS_VOICE && !found)
+				alert("The voice previously selected in the settings doesn't seem to be available in your ElevenLabs account anymore. Please select a new voice in the settings to restore ElevenLabs support. Voice ID: " + CN_TTS_ELEVENLABS_VOICE);
+		}
+	};
+
+	// Let's go
+	xhr.send();
+}
+
 // MAIN ENTRY POINT
 // Load jQuery, then run initialization function
 (function () {
@@ -1072,5 +1546,104 @@ function CN_GetCookie(name) {
 
 // List of languages for speech recognition - Pulled from https://www.google.com/intl/en/chrome/demos/speech.html
 var CN_SPEECHREC_LANGS =
-	[['English', 
-		['en-US', 'United States']]];
+	[['Afrikaans', ['af-ZA']],
+	['አማርኛ', ['am-ET']],
+	['Azərbaycanca', ['az-AZ']],
+	['বাংলা', ['bn-BD', 'বাংলাদেশ'],
+		['bn-IN', 'ভারত']],
+	['Bahasa Indonesia', ['id-ID']],
+	['Bahasa Melayu', ['ms-MY']],
+	['Català', ['ca-ES']],
+	['Čeština', ['cs-CZ']],
+	['Dansk', ['da-DK']],
+	['Deutsch', ['de-DE']],
+	['English', ['en-AU', 'Australia'],
+		['en-CA', 'Canada'],
+		['en-IN', 'India'],
+		['en-KE', 'Kenya'],
+		['en-TZ', 'Tanzania'],
+		['en-GH', 'Ghana'],
+		['en-NZ', 'New Zealand'],
+		['en-NG', 'Nigeria'],
+		['en-ZA', 'South Africa'],
+		['en-PH', 'Philippines'],
+		['en-GB', 'United Kingdom'],
+		['en-US', 'United States']],
+	['Español', ['es-AR', 'Argentina'],
+		['es-BO', 'Bolivia'],
+		['es-CL', 'Chile'],
+		['es-CO', 'Colombia'],
+		['es-CR', 'Costa Rica'],
+		['es-EC', 'Ecuador'],
+		['es-SV', 'El Salvador'],
+		['es-ES', 'España'],
+		['es-US', 'Estados Unidos'],
+		['es-GT', 'Guatemala'],
+		['es-HN', 'Honduras'],
+		['es-MX', 'México'],
+		['es-NI', 'Nicaragua'],
+		['es-PA', 'Panamá'],
+		['es-PY', 'Paraguay'],
+		['es-PE', 'Perú'],
+		['es-PR', 'Puerto Rico'],
+		['es-DO', 'República Dominicana'],
+		['es-UY', 'Uruguay'],
+		['es-VE', 'Venezuela']],
+	['Euskara', ['eu-ES']],
+	['Filipino', ['fil-PH']],
+	['Français', ['fr-FR']],
+	['Basa Jawa', ['jv-ID']],
+	['Galego', ['gl-ES']],
+	['ગુજરાતી', ['gu-IN']],
+	['Hrvatski', ['hr-HR']],
+	['IsiZulu', ['zu-ZA']],
+	['Íslenska', ['is-IS']],
+	['Italiano', ['it-IT', 'Italia'],
+		['it-CH', 'Svizzera']],
+	['ಕನ್ನಡ', ['kn-IN']],
+	['ភាសាខ្មែរ', ['km-KH']],
+	['Latviešu', ['lv-LV']],
+	['Lietuvių', ['lt-LT']],
+	['മലയാളം', ['ml-IN']],
+	['मराठी', ['mr-IN']],
+	['Magyar', ['hu-HU']],
+	['ລາວ', ['lo-LA']],
+	['Nederlands', ['nl-NL']],
+	['नेपाली भाषा', ['ne-NP']],
+	['Norsk bokmål', ['nb-NO']],
+	['Polski', ['pl-PL']],
+	['Português', ['pt-BR', 'Brasil'],
+		['pt-PT', 'Portugal']],
+	['Română', ['ro-RO']],
+	['සිංහල', ['si-LK']],
+	['Slovenščina', ['sl-SI']],
+	['Basa Sunda', ['su-ID']],
+	['Slovenčina', ['sk-SK']],
+	['Suomi', ['fi-FI']],
+	['Svenska', ['sv-SE']],
+	['Kiswahili', ['sw-TZ', 'Tanzania'],
+		['sw-KE', 'Kenya']],
+	['ქართული', ['ka-GE']],
+	['Հայերեն', ['hy-AM']],
+	['தமிழ்', ['ta-IN', 'இந்தியா'],
+		['ta-SG', 'சிங்கப்பூர்'],
+		['ta-LK', 'இலங்கை'],
+		['ta-MY', 'மலேசியா']],
+	['తెలుగు', ['te-IN']],
+	['Tiếng Việt', ['vi-VN']],
+	['Türkçe', ['tr-TR']],
+	['اُردُو', ['ur-PK', 'پاکستان'],
+		['ur-IN', 'بھارت']],
+	['Ελληνικά', ['el-GR']],
+	['български', ['bg-BG']],
+	['Pусский', ['ru-RU']],
+	['Српски', ['sr-RS']],
+	['Українська', ['uk-UA']],
+	['한국어', ['ko-KR']],
+	['中文', ['cmn-Hans-CN', '普通话 (中国大陆)'],
+		['cmn-Hans-HK', '普通话 (香港)'],
+		['cmn-Hant-TW', '中文 (台灣)'],
+		['yue-Hant-HK', '粵語 (香港)']],
+	['日本語', ['ja-JP']],
+	['हिन्दी', ['hi-IN']],
+	['ภาษาไทย', ['th-TH']]];
