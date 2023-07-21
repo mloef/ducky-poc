@@ -13,118 +13,196 @@
 // These are the default settings. Since v1.3, a 'settings' menu allows to change most of the below values in the UI
 // Since v1.4, these settings are saved. So there is no need to edit them out anymore.
 
-// Settings for the text-to-speech functionality (the bot's voice)
-var CN_TEXT_TO_SPEECH_RATE = 1; // The higher the rate, the faster the bot will speak
-var CN_TEXT_TO_SPEECH_PITCH = 1; // This will alter the pitch for the bot's voice
+	// Settings for the text-to-speech functionality (the bot's voice)
+	var TEXT_TO_SPEECH_RATE = 1; // The higher the rate, the faster the bot will speak
+	var TEXT_TO_SPEECH_PITCH = 1; // This will alter the pitch for the bot's voice
 
-// Indicate a locale code such as 'fr-FR', 'en-US', to use a particular language for the speech recognition functionality (when you speak into the mic)
-// If you leave this blank, the system's default language will be used
-var CN_WANTED_LANGUAGE_SPEECH_REC = ""; //"fr-FR";
+	// Indicate a locale code such as 'fr-FR', 'en-US', to use a particular language for the speech recognition functionality (when you speak into the mic)
+	// If you leave this blank, the system's default language will be used
+	var WANTED_LANGUAGE_SPEECH_REC = ""; //"fr-FR";
 
-// Determine which word will cause this scrip to stop.
-var CN_SAY_THIS_WORD_TO_STOP = "stop";
+	// Determine which word will cause this scrip to stop.
+	var SAY_THIS_WORD_TO_STOP = "stop";
 
-// Determine which word will cause this script to temporarily pause
-var CN_SAY_THIS_WORD_TO_PAUSE = "pause";
+	// Determine which word will cause this script to temporarily pause
+	var SAY_THIS_WORD_TO_PAUSE = "pause";
 
-// Do we keep listening even when paused, so that we can resume by a vocal command?
-var CN_KEEP_LISTENING = true;
+	// Do we keep listening even when paused, so that we can resume by a vocal command?
+	var KEEP_LISTENING = true;
 
-// Determine whether messages are sent immediately after speaing
-var CN_AUTO_SEND_AFTER_SPEAKING = true;
+	// Determine whether messages are sent immediately after speaing
+	var AUTO_SEND_AFTER_SPEAKING = true;
 
-// Determine whether commas should be ignored as sentence separators
-var CN_IGNORE_COMMAS = false;
+	// Determine whether commas should be ignored as sentence separators
+	var IGNORE_COMMAS = false;
 
-// Determine which word(s) will cause this script to send the current message (if auto-send disabled)
-var CN_SAY_THIS_TO_SEND = "send message now";
+	// Determine which word(s) will cause this script to send the current message (if auto-send disabled)
+	var SAY_THIS_TO_SEND = "send message now";
 
-// Indicate "locale-voice name" (the possible values are difficult to determine, you should just ignore this and use the settings menu instead)
-var CN_WANTED_VOICE_NAME = "";
+	// Indicate "locale-voice name" (the possible values are difficult to determine, you should just ignore this and use the settings menu instead)
+	var WANTED_VOICE_NAME = "";
 
-// Ignore code blocks - anything contained in <pre>
-var CN_IGNORE_CODE_BLOCKS = false;
+	// Ignore code blocks - anything contained in <pre>
+	var IGNORE_CODE_BLOCKS = false;
 
-// Use ElevenLabs for TTS
-var CN_TTS_ELEVENLABS = false;
+	// Use ElevenLabs for TTS
+	var TTS_ELEVENLABS = false;
 
-// ElevenLabs API key
-var CN_TTS_ELEVENLABS_APIKEY = "";
+	// ElevenLabs API key
+	var TTS_ELEVENLABS_APIKEY = "";
 
-// ElevenLabs voice
-var CN_TTS_ELEVENLABS_VOICE = "";
+	// ElevenLabs voice
+	var TTS_ELEVENLABS_VOICE = "";
 
-// Statically list ElevenLabs models (easier than to request from API)
-var CN_TTS_ELEVENLABS_MODELS = { "eleven_monolingual_v1": "English only", "eleven_multilingual_v1": "Multi-language (autodetect)" };
+	// Statically list ElevenLabs models (easier than to request from API)
+	var TTS_ELEVENLABS_MODELS = { "eleven_monolingual_v1": "English only", "eleven_multilingual_v1": "Multi-language (autodetect)" };
 
-// Other ElevenLabs settings
-var CN_TTS_ELEVENLABS_STABILITY = "";
-var CN_TTS_ELEVENLABS_SIMILARITY = "";
+	// Other ElevenLabs settings
+	var TTS_ELEVENLABS_STABILITY = "";
+	var TTS_ELEVENLABS_SIMILARITY = "";
 
-// ----------------------------
+	// ----------------------------
 
 
-// -------------------
-// CODE (DO NOT ALTER)
-// -------------------
-var CN_START_TIME = 0
-var CN_END_TIME = 0
-var CN_IS_TALKING = false
-var CN_PARTIAL_TEXT = "";
-var CN_MESSAGE_COUNT = 0;
-var CN_CURRENT_MESSAGE = null;
-var CN_SPEECHREC = null;
-var CN_IS_READING = false;
-var CN_IS_LISTENING = false;
-var CN_FINISHED = false;
-var CN_PAUSED = false;
-var CN_WANTED_VOICE = null;
-var CN_TIMEOUT_KEEP_SYNTHESIS_WORKING = null;
-var CN_TIMEOUT_KEEP_SPEECHREC_WORKING = null;
-var CN_SPEECH_REC_SUPPORTED = false;
-var CN_SPEAKING_DISABLED = false;
-var CN_SPEECHREC_DISABLED = false;
-var CN_CONVERSATION_SUSPENDED = false;
-var CN_BAR_COLOR_FLASH_GREY = false;
-var CN_TTS_ELEVENLABS_QUEUE = [];
-var CN_IS_CONVERTING = false;
-var CN_IS_PLAYING = false;
-var CN_CURRENT_AUDIO = null;
+	// -------------------
+	// CODE (DO NOT ALTER)
+	// -------------------
+	var START_TIME = 0
+	var END_TIME = 0
+	var IS_TALKING = false
+	var PARTIAL_TEXT = "";
+	var MESSAGE_COUNT = 0;
+	var CURRENT_MESSAGE = null;
+	var SPEECHREC = null;
+	var IS_READING = false;
+	var IS_LISTENING = false;
+	var FINISHED = false;
+	var PAUSED = false;
+	var WANTED_VOICE = null;
+	var TIMEOUT_KEEP_SYNTHESIS_WORKING = null;
+	var TIMEOUT_KEEP_SPEECHREC_WORKING = null;
+	var SPEECH_REC_SUPPORTED = false;
+	var SPEAKING_DISABLED = false;
+	var SPEECHREC_DISABLED = false;
+	var CONVERSATION_SUSPENDED = false;
+	var BAR_COLOR_FLASH_GREY = false;
+	var TTS_ELEVENLABS_QUEUE = [];
+	var IS_CONVERTING = false;
+	var IS_PLAYING = false;
+	var CURRENT_AUDIO = null;
+
+function cleanInit() {
+	// Settings for the text-to-speech functionality (the bot's voice)
+	TEXT_TO_SPEECH_RATE = 1; // The higher the rate, the faster the bot will speak
+	TEXT_TO_SPEECH_PITCH = 1; // This will alter the pitch for the bot's voice
+
+	// Indicate a locale code such as 'fr-FR', 'en-US', to use a particular language for the speech recognition functionality (when you speak into the mic)
+	// If you leave this blank, the system's default language will be used
+	WANTED_LANGUAGE_SPEECH_REC = ""; //"fr-FR";
+
+	// Determine which word will cause this scrip to stop.
+	SAY_THIS_WORD_TO_STOP = "stop";
+
+	// Determine which word will cause this script to temporarily pause
+	SAY_THIS_WORD_TO_PAUSE = "pause";
+
+	// Do we keep listening even when paused, so that we can resume by a vocal command?
+	KEEP_LISTENING = true;
+
+	// Determine whether messages are sent immediately after speaing
+	AUTO_SEND_AFTER_SPEAKING = true;
+
+	// Determine whether commas should be ignored as sentence separators
+	IGNORE_COMMAS = false;
+
+	// Determine which word(s) will cause this script to send the current message (if auto-send disabled)
+	SAY_THIS_TO_SEND = "send message now";
+
+	// Indicate "locale-voice name" (the possible values are difficult to determine, you should just ignore this and use the settings menu instead)
+	WANTED_VOICE_NAME = "";
+
+	// Ignore code blocks - anything contained in <pre>
+	IGNORE_CODE_BLOCKS = false;
+
+	// Use ElevenLabs for TTS
+	TTS_ELEVENLABS = false;
+
+	// ElevenLabs API key
+	TTS_ELEVENLABS_APIKEY = "";
+
+	// ElevenLabs voice
+	TTS_ELEVENLABS_VOICE = "";
+
+	// Statically list ElevenLabs models (easier than to request from API)
+	TTS_ELEVENLABS_MODELS = { "eleven_monolingual_v1": "English only", "eleven_multilingual_v1": "Multi-language (autodetect)" };
+
+	// Other ElevenLabs settings
+	TTS_ELEVENLABS_STABILITY = "";
+	TTS_ELEVENLABS_SIMILARITY = "";
+
+	// ----------------------------
+
+
+	// -------------------
+	// CODE (DO NOT ALTER)
+	// -------------------
+	START_TIME = 0
+	END_TIME = 0
+	IS_TALKING = false
+	PARTIAL_TEXT = "";
+	MESSAGE_COUNT = 0;
+	CURRENT_MESSAGE = null;
+	SPEECHREC = null;
+	IS_READING = false;
+	IS_LISTENING = false;
+	FINISHED = false;
+	PAUSED = false;
+	WANTED_VOICE = null;
+	TIMEOUT_KEEP_SYNTHESIS_WORKING = null;
+	TIMEOUT_KEEP_SPEECHREC_WORKING = null;
+	SPEECH_REC_SUPPORTED = false;
+	SPEAKING_DISABLED = false;
+	SPEECHREC_DISABLED = false;
+	CONVERSATION_SUSPENDED = false;
+	BAR_COLOR_FLASH_GREY = false;
+	TTS_ELEVENLABS_QUEUE = [];
+	IS_CONVERTING = false;
+	IS_PLAYING = false;
+	var CURRENT_AUDIO = null;
+}
 
 // This function will say the given text out loud using the browser's speech synthesis API, or send the message to the ElevenLabs conversion stack
-function CN_SayOutLoud(text) {
+function SayOutLoud(text) {
 	// If TTS is disabled and there's nothing to say, ensure speech recognition is started
-	if (!text || CN_SPEAKING_DISABLED) {
-		if (CN_SPEECH_REC_SUPPORTED && CN_SPEECHREC && !CN_IS_LISTENING && !CN_PAUSED && !CN_SPEECHREC_DISABLED && !CN_IS_READING) {
+	if (!text || SPEAKING_DISABLED) {
+		if (SPEECH_REC_SUPPORTED && SPEECHREC && !IS_LISTENING && !PAUSED && !SPEECHREC_DISABLED && !IS_READING) {
 			// Check if speech recognition is already running to avoid error
 			try {
 				console.log("Attempting to start SpeechRecognition");
-				CN_SPEECHREC.start();
-				CN_IS_LISTENING = true; // Ensure this flag is set to true here
+				SPEECHREC.start();
+				IS_LISTENING = true; // Ensure this flag is set to true here
 			} catch (error) {
 				console.error("Failed to start SpeechRecognition:", error);
 			}
 		} else {
-			console.log("Not starting SpeechRecognition because CN_IS_LISTENING is", CN_IS_LISTENING);
+			console.log("Not starting SpeechRecognition because IS_LISTENING is", IS_LISTENING);
 		}
-		clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-		CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
-		return;
+		StartSpeechRecognition();
 	}
 
 	// If we are about to speak, stop speech recognition
-	if (CN_SPEECHREC && text && !CN_SPEAKING_DISABLED) {
-		clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
+	if (SPEECHREC && text && !SPEAKING_DISABLED) {
+		clearTimeout(TIMEOUT_KEEP_SPEECHREC_WORKING);
 		console.log("Stopping SpeechRecognition");
-		CN_SPEECHREC.stop();
-		CN_IS_LISTENING = false; // Ensure this flag is set to false here
+		SPEECHREC.stop();
+		IS_LISTENING = false; // Ensure this flag is set to false here
 	}
 
 	console.time('t2s lag')
 	// What is the TTS method?
-	if (CN_TTS_ELEVENLABS) {
+	if (TTS_ELEVENLABS) {
 		// We are using ElevenLabs, so push message to queue
-		CN_SayOutLoudElevenLabs(text);
+		SayOutLoudElevenLabs(text);
 		return;
 	}
 
@@ -133,42 +211,42 @@ function CN_SayOutLoud(text) {
 	var msg = new SpeechSynthesisUtterance();
 	msg.text = text;
 
-	if (CN_WANTED_VOICE) msg.voice = CN_WANTED_VOICE;
-	msg.rate = CN_TEXT_TO_SPEECH_RATE;
-	msg.pitch = CN_TEXT_TO_SPEECH_PITCH;
+	if (WANTED_VOICE) msg.voice = WANTED_VOICE;
+	msg.rate = TEXT_TO_SPEECH_RATE;
+	msg.pitch = TEXT_TO_SPEECH_PITCH;
 	msg.onstart = () => {
 		console.timeEnd('t2s lag')
 		console.timeEnd('total')
 		// Make border green
-		$("#CNStatusBar").css("background", "green");
+		$("#StatusBar").css("background", "green");
 
 		// If speech recognition is active, disable it
-		if (CN_IS_LISTENING) CN_SPEECHREC.stop();
+		if (IS_LISTENING) SPEECHREC.stop();
 
-		if (CN_FINISHED) return;
-		CN_IS_READING = true;
-		clearTimeout(CN_TIMEOUT_KEEP_SYNTHESIS_WORKING);
-		CN_TIMEOUT_KEEP_SYNTHESIS_WORKING = setTimeout(CN_KeepSpeechSynthesisActive, 5000);
+		if (FINISHED) return;
+		IS_READING = true;
+		clearTimeout(TIMEOUT_KEEP_SYNTHESIS_WORKING);
+		TIMEOUT_KEEP_SYNTHESIS_WORKING = setTimeout(KeepSpeechSynthesisActive, 5000);
 	};
 	msg.onend = () => {
-		CN_IS_TALKING = false;
+		IS_TALKING = false;
 		console.log('ended speech')
-		CN_AfterSpeakOutLoudFinished();
+		AfterSpeakOutLoudFinished();
 	}
-	CN_IS_READING = true;
-	CN_IS_TALKING = true;
+	IS_READING = true;
+	IS_TALKING = true;
 	console.log('started speech');
 	window.speechSynthesis.speak(msg);
 }
 
 // Say a message out loud using ElevenLabs
-function CN_SayOutLoudElevenLabs(text) {
+function SayOutLoudElevenLabs(text) {
 	// Make border green
-	$("#CNStatusBar").css("background", "green");
+	$("#StatusBar").css("background", "green");
 
 	// Push message into queue (sequentially)
-	CN_TTS_ELEVENLABS_QUEUE.push({
-		index: CN_TTS_ELEVENLABS_QUEUE.length, // message index
+	TTS_ELEVENLABS_QUEUE.push({
+		index: TTS_ELEVENLABS_QUEUE.length, // message index
 		text: text, // message text
 		audio: null, // message blob / audio URL to be played
 		converted: false, // has it been converted to audio yet?
@@ -176,20 +254,20 @@ function CN_SayOutLoudElevenLabs(text) {
 	});
 
 	// If the TTS conversion task isn't running, run it
-	if (!CN_IS_CONVERTING) CN_ConvertTTSElevenLabs();
+	if (!IS_CONVERTING) ConvertTTSElevenLabs();
 }
 
 // Process next item in conversion queue
-function CN_ConvertTTSElevenLabs() {
+function ConvertTTSElevenLabs() {
 	// Start converting TTS
-	CN_IS_CONVERTING = true;
+	IS_CONVERTING = true;
 
 	// Identify next message to be converted
 	var obj = null;
 	var objIndex = null;
-	for (var i in CN_TTS_ELEVENLABS_QUEUE) {
-		if (!CN_TTS_ELEVENLABS_QUEUE[i].converted) {
-			obj = CN_TTS_ELEVENLABS_QUEUE[i];
+	for (var i in TTS_ELEVENLABS_QUEUE) {
+		if (!TTS_ELEVENLABS_QUEUE[i].converted) {
+			obj = TTS_ELEVENLABS_QUEUE[i];
 			objIndex = i;
 			break;
 		}
@@ -197,12 +275,12 @@ function CN_ConvertTTSElevenLabs() {
 
 	// If we didn't find an object to convert, then we are done
 	if (obj === null) {
-		CN_IS_CONVERTING = false;
+		IS_CONVERTING = false;
 		return;
 	}
 
 	// Get model and voice ID
-	var parts = CN_TTS_ELEVENLABS_VOICE.split(".");
+	var parts = TTS_ELEVENLABS_VOICE.split(".");
 	var model = parts[0];
 	var voiceId = typeof parts[1] == "undefined" ? "" : parts[1];
 
@@ -215,7 +293,7 @@ function CN_ConvertTTSElevenLabs() {
 	xhr.open("POST", "https://api.elevenlabs.io/v1/text-to-speech/" + voiceId + "?optimize_streaming_latency=4");
 	xhr.setRequestHeader("Accept", "audio/mpeg");
 	xhr.setRequestHeader("Content-Type", "application/json");
-	xhr.setRequestHeader("xi-api-key", CN_TTS_ELEVENLABS_APIKEY)
+	xhr.setRequestHeader("xi-api-key", TTS_ELEVENLABS_APIKEY)
 	xhr.responseType = "arraybuffer";
 
 	// Prepare request body
@@ -225,15 +303,15 @@ function CN_ConvertTTSElevenLabs() {
 	};
 
 	// Set voice settings
-	if (CN_TTS_ELEVENLABS_STABILITY != "" || CN_TTS_ELEVENLABS_SIMILARITY != "") {
+	if (TTS_ELEVENLABS_STABILITY != "" || TTS_ELEVENLABS_SIMILARITY != "") {
 		// Prepare voice settings
 		var voice_settings = {
 			"stability": 0,
 			"similarity_boost": 0
 		};
 		try {
-			voice_settings["stability"] = parseFloat(CN_TTS_ELEVENLABS_STABILITY);
-			voice_settings["similarity_boost"] = parseFloat(CN_TTS_ELEVENLABS_SIMILARITY);
+			voice_settings["stability"] = parseFloat(TTS_ELEVENLABS_STABILITY);
+			voice_settings["similarity_boost"] = parseFloat(TTS_ELEVENLABS_SIMILARITY);
 		} catch (e) {
 			voice_settings = {
 				"stability": 0,
@@ -277,34 +355,34 @@ function CN_ConvertTTSElevenLabs() {
 								// Try again after 1 second
 								setTimeout(function () {
 									console.log("[ELEVENLABS] Too many concurrent requests");
-									CN_ConvertTTSElevenLabs();
+									ConvertTTSElevenLabs();
 								}, 1000);
 								return;
 							} else {
 								// Show error and stop everything
-								CN_IS_CONVERTING = false;
-								CN_IS_READING = false;
-								CN_TTS_ELEVENLABS_QUEUE = [];
+								IS_CONVERTING = false;
+								IS_READING = false;
+								TTS_ELEVENLABS_QUEUE = [];
 								alert("[1] ElevenLabs API error: " + result.detail.message);
-								CN_AfterSpeakOutLoudFinished();
+								AfterSpeakOutLoudFinished();
 								return;
 							}
 						}
 						else {
-							CN_IS_CONVERTING = false;
-							CN_IS_READING = false;
-							CN_TTS_ELEVENLABS_QUEUE = [];
+							IS_CONVERTING = false;
+							IS_READING = false;
+							TTS_ELEVENLABS_QUEUE = [];
 							alert("[2] ElevenLabs API error: " + responseText);
-							CN_AfterSpeakOutLoudFinished();
+							AfterSpeakOutLoudFinished();
 							return;
 						}
 					}
 				} catch (e) {
-					CN_IS_CONVERTING = false;
-					CN_IS_READING = false;
-					CN_TTS_ELEVENLABS_QUEUE = [];
+					IS_CONVERTING = false;
+					IS_READING = false;
+					TTS_ELEVENLABS_QUEUE = [];
 					alert("[3] ElevenLabs API error: " + e.toString());
-					CN_AfterSpeakOutLoudFinished();
+					AfterSpeakOutLoudFinished();
 					return;
 				}
 
@@ -313,19 +391,19 @@ function CN_ConvertTTSElevenLabs() {
 				var audioURL = window.URL.createObjectURL(blob);
 
 				// Has the queue been reset? (if we clicked Skip, or if we stopped audio playback)
-				if (CN_TTS_ELEVENLABS_QUEUE.length == 0) return;
+				if (TTS_ELEVENLABS_QUEUE.length == 0) return;
 
-				CN_TTS_ELEVENLABS_QUEUE[objIndex].audio = audioURL;
-				CN_TTS_ELEVENLABS_QUEUE[objIndex].converted = true;
+				TTS_ELEVENLABS_QUEUE[objIndex].audio = audioURL;
+				TTS_ELEVENLABS_QUEUE[objIndex].converted = true;
 				console.log("[ELEVENLABS] Text converted to audio successfully");
 
 				// What's next?
 				setTimeout(function () {
 					// Continue conversions if any
-					CN_ConvertTTSElevenLabs();
+					ConvertTTSElevenLabs();
 
 					// Start audio playback if not already
-					if (!CN_IS_PLAYING) CN_ContinueElevenLabsPlaybackQueue();
+					if (!IS_PLAYING) ContinueElevenLabsPlaybackQueue();
 				}, 100);
 
 
@@ -340,16 +418,16 @@ function CN_ConvertTTSElevenLabs() {
 }
 
 // Process the next item in the audio queue
-function CN_ContinueElevenLabsPlaybackQueue() {
-	CN_IS_PLAYING = true;
-	CN_IS_READING = true;
+function ContinueElevenLabsPlaybackQueue() {
+	IS_PLAYING = true;
+	IS_READING = true;
 
 	// Identify next message to be played
 	var obj = null;
 	var objIndex = null;
-	for (var i in CN_TTS_ELEVENLABS_QUEUE) {
-		if (CN_TTS_ELEVENLABS_QUEUE[i].converted && !CN_TTS_ELEVENLABS_QUEUE[i].played) {
-			obj = CN_TTS_ELEVENLABS_QUEUE[i];
+	for (var i in TTS_ELEVENLABS_QUEUE) {
+		if (TTS_ELEVENLABS_QUEUE[i].converted && !TTS_ELEVENLABS_QUEUE[i].played) {
+			obj = TTS_ELEVENLABS_QUEUE[i];
 			objIndex = i;
 			break;
 		}
@@ -357,16 +435,16 @@ function CN_ContinueElevenLabsPlaybackQueue() {
 
 	// If we didn't find an object to play, then we are done
 	if (obj === null) {
-		CN_IS_PLAYING = false;
-		CN_IS_READING = false;
+		IS_PLAYING = false;
+		IS_READING = false;
 
 		// Current audio stack complete
 		console.log("[ELEVENLABS] Current stack of audio messages complete");
 
 		// If there is no longer anything to convert or to play, we can resume listening
 		var canResumeListening = true;
-		for (var i in CN_TTS_ELEVENLABS_QUEUE) {
-			if (!CN_TTS_ELEVENLABS_QUEUE[i].played || !CN_TTS_ELEVENLABS_QUEUE[i].converted) {
+		for (var i in TTS_ELEVENLABS_QUEUE) {
+			if (!TTS_ELEVENLABS_QUEUE[i].played || !TTS_ELEVENLABS_QUEUE[i].converted) {
 				canResumeListening = false;
 				break;
 			}
@@ -375,7 +453,7 @@ function CN_ContinueElevenLabsPlaybackQueue() {
 		// Finished playing
 		if (canResumeListening) {
 			setTimeout(function () {
-				CN_AfterSpeakOutLoudFinished();
+				AfterSpeakOutLoudFinished();
 			}, 250);
 		}
 
@@ -385,64 +463,59 @@ function CN_ContinueElevenLabsPlaybackQueue() {
 	console.log("[ELEVENLABS] Playback of message " + objIndex + ": " + obj.text);
 
 	// Create audio object, set data
-	CN_CURRENT_AUDIO = new Audio();
-	CN_CURRENT_AUDIO.src = obj.audio;
+	CURRENT_AUDIO = new Audio();
+	CURRENT_AUDIO.src = obj.audio;
 
 	// What happens when ended?
-	CN_CURRENT_AUDIO.onended = function () {
+	CURRENT_AUDIO.onended = function () {
 
-		setTimeout(function () {
-			// Start audio playback if not already
-			CN_ContinueElevenLabsPlaybackQueue();
-		}, 100);
+		// Start audio playback if not already
+		ContinueElevenLabsPlaybackQueue();
 
 	};
 
 	// Annnnd... action!
 	console.timeEnd('t2s lag');
 	console.timeEnd('total');
-	CN_CURRENT_AUDIO.play();
+	CURRENT_AUDIO.play();
 
 	// Mark as played so it doesn't play twice
-	CN_TTS_ELEVENLABS_QUEUE[objIndex].played = true;
-	CN_TTS_ELEVENLABS_QUEUE[objIndex].audio = null; // Erase audio from memory
+	TTS_ELEVENLABS_QUEUE[objIndex].played = true;
+	TTS_ELEVENLABS_QUEUE[objIndex].audio = null; // Erase audio from memory
 }
 
 
 // Occurs when speaking out loud is finished
-function CN_AfterSpeakOutLoudFinished() {
-	if (CN_SPEECHREC_DISABLED) return;
+function AfterSpeakOutLoudFinished() {
+	if (SPEECHREC_DISABLED) return;
 
 	// Make border grey again
-	$("#CNStatusBar").css("background", "grey");
+	$("#StatusBar").css("background", "grey");
 
-	if (CN_FINISHED) return;
+	if (FINISHED) return;
 
 	// Finished speaking
-	clearTimeout(CN_TIMEOUT_KEEP_SYNTHESIS_WORKING);
+	clearTimeout(TIMEOUT_KEEP_SYNTHESIS_WORKING);
 	console.log("Finished speaking out loud");
 
 	// restart listening
-	CN_IS_READING = false;
-	setTimeout(function () {
-		if (!window.speechSynthesis.speaking) {
-			if (CN_SPEECH_REC_SUPPORTED && CN_SPEECHREC && !CN_IS_LISTENING && !CN_PAUSED && !CN_SPEECHREC_DISABLED && !CN_IS_READING) CN_SPEECHREC.start();
-			clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-			CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
-		}
-	}, 500);
+	IS_READING = false;
+	if (!window.speechSynthesis.speaking) {
+		if (SPEECH_REC_SUPPORTED && SPEECHREC && !IS_LISTENING && !PAUSED && !SPEECHREC_DISABLED && !IS_READING) SPEECHREC.start();
+		StartSpeechRecognition();
+	}
 }
 
 // This is a workaround for Chromium's bug in the speech synthesis API (https://stackoverflow.com/questions/21947730/chrome-speech-synthesis-with-longer-texts)
-function CN_KeepSpeechSynthesisActive() {
+function KeepSpeechSynthesisActive() {
 	console.log("Keeping speech synthesis active...");
 	window.speechSynthesis.pause();
 	window.speechSynthesis.resume();
-	CN_TIMEOUT_KEEP_SYNTHESIS_WORKING = setTimeout(CN_KeepSpeechSynthesisActive, 5000);
+	TIMEOUT_KEEP_SYNTHESIS_WORKING = setTimeout(KeepSpeechSynthesisActive, 5000);
 }
 
 // Split the text into sentences so the speech synthesis can start speaking as soon as possible
-function CN_SplitIntoSentences(text) {
+function SplitIntoSentences(text) {
 	var sentences = [];
 	var currentSentence = "";
 
@@ -456,22 +529,22 @@ function CN_SplitIntoSentences(text) {
 		// is the current character a delimiter? if so, add current part to array and clear
 		if (
 			// Latin punctuation
-			currentChar == (CN_IGNORE_COMMAS ? '.' : ',')
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : ':')
+			currentChar == (IGNORE_COMMAS ? '.' : ',')
+			|| currentChar == (IGNORE_COMMAS ? '.' : ':')
 			|| currentChar == '.'
 			|| currentChar == '!'
 			|| currentChar == '?'
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : ';')
+			|| currentChar == (IGNORE_COMMAS ? '.' : ';')
 			|| currentChar == '…'
 			// Chinese/japanese punctuation
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '、')
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '，')
+			|| currentChar == (IGNORE_COMMAS ? '.' : '、')
+			|| currentChar == (IGNORE_COMMAS ? '.' : '，')
 			|| currentChar == '。'
 			|| currentChar == '．'
 			|| currentChar == '！'
 			|| currentChar == '？'
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '；')
-			|| currentChar == (CN_IGNORE_COMMAS ? '.' : '：')
+			|| currentChar == (IGNORE_COMMAS ? '.' : '；')
+			|| currentChar == (IGNORE_COMMAS ? '.' : '：')
 		) {
 			if (currentSentence.trim() != "") sentences.push(currentSentence.trim());
 			currentSentence = "";
@@ -481,12 +554,11 @@ function CN_SplitIntoSentences(text) {
 	return sentences;
 }
 
-async function CN_GetMessageText() {
-	CN_CURRENT_MESSAGE = jQuery(".text-base:last").find(".items-start");
+/*async function GetMessageText() {
+	CURRENT_MESSAGE = jQuery(".text-base:last").find(".items-start");
 
 	var currentText = ''
 	while (currentText.length < 2 || currentText != jQuery(".text-base:last").find(".items-start").text() + "") {
-		await setTimeout(function () { return }, 100);
 		currentText = jQuery(".text-base:last").find(".items-start").text() + "";
 	}
 
@@ -496,63 +568,62 @@ async function CN_GetMessageText() {
 	console.log(!currentText.length)
 	console.log(currentText != jQuery(".text-base:last").find(".items-start").text() + "")
 
-	if (CN_IGNORE_CODE_BLOCKS) {
+	if (IGNORE_CODE_BLOCKS) {
 		currentText = jQuery(".text-base:last").find(".items-start").find(".markdown").contents().not("pre").text();
 	}
 
 	return currentText;
-}
+}*/
 
 // Check for new messages the bot has sent. If a new message is found, it will be read out loud
-function CN_CheckNewMessages() {
+function CheckNewMessages() {
 	// Any new messages?
 	var currentMessageCount = jQuery(".text-base").length;
 
-	if (currentMessageCount > CN_MESSAGE_COUNT) {
+	if (currentMessageCount > MESSAGE_COUNT) {
 		// New message! is it complete?
 		var currentText = jQuery(".text-base:last").find(".items-start").text() + "";
 
 
-		if (currentText.length > 1 && currentText == CN_PARTIAL_TEXT) {
-			CN_MESSAGE_COUNT = currentMessageCount;
-			console.log("New message detected! CN_MESSAGE_COUNT: " + CN_MESSAGE_COUNT);
+		if (currentText.length > 1 && currentText == PARTIAL_TEXT) {
+			MESSAGE_COUNT = currentMessageCount;
+			console.log("New message detected! MESSAGE_COUNT: " + MESSAGE_COUNT);
 
 			var currentText = jQuery(".text-base:last").find(".items-start").text() + "";
-			const sentences = CN_SplitIntoSentences(currentText);
+			const sentences = SplitIntoSentences(currentText);
 			const firstSentenceLength = sentences[0].length;
 
-			if (CN_IS_TALKING) {
+			if (IS_TALKING) {
 				currentText = currentText.slice(firstSentenceLength)
 			}
 
-			CN_SayOutLoud(currentText);
-			CN_PARTIAL_TEXT = "";
+			SayOutLoud(currentText);
+			PARTIAL_TEXT = "";
 		} else {
-			const sentences = CN_SplitIntoSentences(currentText);
-			if (sentences.length > 1 && !CN_IS_TALKING) {
+			const sentences = SplitIntoSentences(currentText);
+			if (sentences.length > 1 && !IS_TALKING) {
 				console.timeEnd('response');
 				console.log("Speaking first sentence: " + sentences[0]);
-				CN_SayOutLoud(sentences[0]);
+				SayOutLoud(sentences[0]);
 			} else {
 				console.log(sentences)
-				console.log(CN_IS_TALKING)
+				console.log(IS_TALKING)
 			}
-			CN_PARTIAL_TEXT = currentText;
+			PARTIAL_TEXT = currentText;
+			setTimeout(CheckNewMessages, 500);
 		}
 	}
-
-	setTimeout(CN_CheckNewMessages, 500);
 }
 
 // Send a message to the bot (will simply put text in the textarea and simulate a send button click)
-function CN_SendMessage(text) {
+function SendMessage(text) {
 	// Put message in textarea
 	jQuery("#prompt-textarea").focus();
 	var existingText = jQuery("#prompt-textarea").val();
 
 	// Is there already existing text?
-	if (!existingText) CN_SetTextareaValue(text);
-	else CN_SetTextareaValue(existingText + " " + text);
+	if (!existingText) SetTextareaValue(text);
+	else SetTextareaValue(existingText + " " + text);
 
 	// Change height in case
 	var fullText = existingText + " " + text;
@@ -562,106 +633,107 @@ function CN_SendMessage(text) {
 
 	// Send the message, if autosend is enabled
 	jQuery("#prompt-textarea").closest("div").find("button").prop("disabled", false);
-	if (CN_AUTO_SEND_AFTER_SPEAKING) {
+	if (AUTO_SEND_AFTER_SPEAKING) {
 		console.time('response');
 		console.log('sending message')
 		jQuery("#prompt-textarea").closest("div").find("button").click();
 
 		// Stop speech recognition until the answer is received
-		if (CN_SPEECHREC) {
-			clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-			CN_SPEECHREC.stop();
+		if (SPEECHREC) {
+			clearTimeout(TIMEOUT_KEEP_SPEECHREC_WORKING);
+			SPEECHREC.stop();
 		}
+
+		// Check for new messages
+		CheckNewMessages();
 	} else {
-		// No autosend, so continue recognizing
-		clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-		CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
+		StartSpeechRecognition();
 	}
 }
 
 // Flash the red bar
-function CN_FlashRedBar() {
-	clearTimeout(CN_TIMEOUT_FLASHBAR);
+function FlashRedBar() {
+	clearTimeout(TIMEOUT_FLASHBAR);
 
 	// Conversation no longer suspended?
-	if (!CN_CONVERSATION_SUSPENDED) {
+	if (!CONVERSATION_SUSPENDED) {
 		return;
 	}
 
 	// Is it green? don't do anything
-	if (CN_IS_READING) {
+	if (IS_READING) {
 		// Ignore
-	} else if (CN_BAR_COLOR_FLASH_GREY) {
+	} else if (BAR_COLOR_FLASH_GREY) {
 		// Grey? switch to red
-		$("#CNStatusBar").css("background", "red");
-		CN_BAR_COLOR_FLASH_GREY = false;
+		$("#StatusBar").css("background", "red");
+		BAR_COLOR_FLASH_GREY = false;
 	} else {
 		// Anything else? switch to grey
-		$("#CNStatusBar").css("background", "grey");
-		CN_BAR_COLOR_FLASH_GREY = true;
+		$("#StatusBar").css("background", "grey");
+		BAR_COLOR_FLASH_GREY = true;
 	}
 
 	// Set another timeout
-	CN_TIMEOUT_FLASHBAR = setTimeout(function () {
-		CN_FlashRedBar();
+	TIMEOUT_FLASHBAR = setTimeout(function () {
+		FlashRedBar();
 	}, 500);
 }
 
 // Resume after suspension
-function CN_ResumeAfterSuspension() {
+function ResumeAfterSuspension() {
 	// Make a beep sound
 	setTimeout(function () {
 		// Credits: https://freesound.org/people/plasterbrain/sounds/419493/
-		var snd = new Audio("data:audio/mpeg;base64,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OQAgKNwAUMrdjVn1//OEZAwMVMMuzzeyLxHJgoZeFqaKXlFPKH3UMEIXmJkbmIQPBAIr2eWTvwzssgYujuBheiNzev18A/vV3Uykchs5KYpgqPhuSTYDLClSJGqR76///U0oi4f/dkhmhs/9vb//////////9x9YDhAAgG0ww//XnAJD4T4sMIgNrH/1nBBpYAe8/smSK1LMKiaJlRsA4YHzothuz/b239X+ZFP/9ZASr/kf/89////2kPav/7UCA4AG4HH79MuS+HHL//OEZA0LqMEmKzeSPBKRhkweF06YToGhUdYqBxYqmGwIgqy6BYHYYDQiYHIphYALNgadtc7yGv/DPCNgAAiQEb4qAAwiizA9WA9kPgGXJgvmiD////of/y6e//////////T///oAVGoA/N+cFTtYMdQkDi8aFO26SVt0KgPmXUghAYBwAuNFabHLmv/+dsLLRLdVN0EDwa+DYnNBM1d1vvP///+d9vsgDgz//u+7/pUCALwAMAh/94V5RDbgICwA//OEZBAKoMEoLyuzLhW5hkmeFwSYFRljARjmBJeptYtO2rLlGRALmCgIsGh2mxyx7S/+9bmniU1cpUxgUKJjMOYLpFGJErHnX////R229bKHKKv////////rIQAwCyAbDtjc85A8YWOaOSBiQRphP7LqWedkCggwt3DDgXCAMy2HqW1S2pfrHWOVKXORGa6jyYHPR61vlrmuxql7////+/pqf0/aAjf6P/////27UcXSEhQeba6OwHOP+0xPswiC//OEZA8LbGsaBjRdBRNJglG+ByBcM15o02rHgw+BcDAklaxZghd8wQDA1XoozXCp44lXrb19b//WcsGQFFgDb1KcwMIg5aFhJx04hXqA+7/9dmQKu//1//////01//+uUSBAAIANsOAN4V6lPEGBiAKGB5oaTArBpbTXaSG1uGXUaAi04tNjlvLcs/+Z6rrtaZRvABRWYDSgDWMwX0E0P///tX9/raUm6v//9fVamiwBCuAYYAu/I84hTxhw05AC//N0ZBEK7MEivxe1OBMQ0lGWDvJqD5k85ZigASar9RmagNfAqEJgLGJiICCFLrS21ikyvUYhgYR8QURyACRAOkoULNEBLyKSf9Tf/+r7/W05///+39wr////vUEgBBfgAT+eAeFPLH7SxOr4ThSwHArEn9lVDBCO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");
+		var snd = new Audio("data:audio/mpeg;base64,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OQAgKNwAUMrdjVn1//OEZAwMVMMuzzeyLxHJgoZeFqaKXlFPKH3UMEIXmJkbmIQPBAIr2eWTvwzssgYujuBheiNzev18A/vV3Uykchs5KYpgqPhuSTYDLClSJGqR76///U0oi4f/dkhmhs/9vb//////////9x9YDhAAgG0ww//XnAJD4T4sMIgNrH/1nBBpYAe8/smSK1LMKiaJlRsA4YHzothuz/b239X+ZFP/9ZASr/kf/89////2kPav/7UCA4AG4HH79MuS+HHL//OEZA0LqMEmKzeSPBKRhkweF06YToGhUdYqBxYqmGwIgqy6BYHYYDQiYHIphYALNgadtc7yGv/DPgAAiQEb4qAAwiizA9WA9kPgGXJgvmiD////of/y6e//////////T///oAVGoA/N+cFTtYMdQkDi8aFO26SVt0KgPmXUghAYBwAuNFabHLmv/+dsLLRLdVN0EDwa+DYnNBM1d1vvP///+d9vsgDgz//u+7/pUCALwAMAh/94V5RDbgICwA//OEZBAKoMEoLyuzLhW5hkmeFwSYFRljARjmBJeptYtO2rLlGRALmCgIsGh2mxyx7S/+9bmniU1cpUxgUKJjMOYLpFGJErHnX////R229bKHKKv////////rIQAwCyAbDtjc85A8YWOaOSBiQRphP7LqWedkCggwt3DDgXCAMy2HqW1S2pfrHWOVKXORGa6jyYHPR61vlrmuxql7////+/pqf0/aAjf6P/////27UcXSEhQeba6OwHOP+0xPswiC//OEZA8LbGsaBjRdBRNJglG+ByBcM15o02rHgw+BcDAklaxZghd8wQDA1XoozXCp44lXrb19b//WcsGQFFgDb1KcwMIg5aFhJx04hXqA+7/9dmQKu//1//////01//+uUSBAAIANsOAN4V6lPEGBiAKGB5oaTArBpbTXaSG1uGXUaAi04tNjlvLcs/+Z6rrtaZRvABRWYDSgDWMwX0E0P///tX9/raUm6v//9fVamiwBCuAYYAu/I84hTxhw05AC//N0ZBEK7MEivxe1OBMQ0lGWDvJqD5k85ZigASar9RmagNfAqEJgLGJiICCFLrS21ikyvUYhgYR8QURyACRAOkoULNEBLyKSf9Tf/+r7/W05///+39wr////vUEgBBfgAT+eAeFPLH7SxOr4ThSwHArEn9lVDBCO5u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");
 		snd.play();
 	}, 100);
 
 	// Finish alternating colors, reset to grey
-	clearTimeout(CN_TIMEOUT_FLASHBAR);
-	$("#CNStatusBar").css("background", "grey");
+	clearTimeout(TIMEOUT_FLASHBAR);
+	$("#StatusBar").css("background", "grey");
 
 	// Hide suspend area
-	jQuery("#CNSuspendedArea").hide();
+	jQuery("#SuspendedArea").hide();
 
 	// Say OK and resume conversation
-	CN_PAUSED = false;
-	CN_CONVERSATION_SUSPENDED = false;
+	PAUSED = false;
+	CONVERSATION_SUSPENDED = false;
 }
 
 // Start speech recognition using the browser's speech recognition API
-function CN_StartSpeechRecognition() {
-	if (CN_IS_READING) {
-		clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-		CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
+function StartSpeechRecognition() {
+	if (IS_READING) {
+		clearTimeout(TIMEOUT_KEEP_SPEECHREC_WORKING);
+		TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(KeepSpeechRecWorking, 100);
 		return;
 	}
-	if (!CN_SPEECH_REC_SUPPORTED) return;
-	CN_SPEECHREC = ('webkitSpeechRecognition' in window) ? new webkitSpeechRecognition() : new SpeechRecognition();
-	CN_SPEECHREC.continuous = true;
-	CN_SPEECHREC.lang = CN_WANTED_LANGUAGE_SPEECH_REC;
-	CN_SPEECHREC.onstart = () => {
+	if (!SPEECH_REC_SUPPORTED) return;
+	SPEECHREC = ('webkitSpeechRecognition' in window) ? new webkitSpeechRecognition() : new SpeechRecognition();
+	SPEECHREC.continuous = true;
+	SPEECHREC.lang = WANTED_LANGUAGE_SPEECH_REC;
+	SPEECHREC.onstart = () => {
 		// Make bar red
-		$("#CNStatusBar").css("background", "red");
+		$("#StatusBar").css("background", "red");
 
-		CN_IS_LISTENING = true;
+		IS_LISTENING = true;
 		console.log("I'm listening");
 	};
-	CN_SPEECHREC.onend = () => {
+	SPEECHREC.onend = () => {
 		// Make border grey again
-		$("#CNStatusBar").css("background", "grey");
+		$("#StatusBar").css("background", "grey");
 
-		CN_IS_LISTENING = false;
+		IS_LISTENING = false;
 		console.log("I've stopped listening");
 		console.timeEnd('s2t')
 		console.timeEnd('total')
 		console.time('s2t')
 		console.time('total')
 	};
-	CN_SPEECHREC.onerror = (event) => {
-		CN_IS_LISTENING = false;
+	SPEECHREC.onerror = (event) => {
+		IS_LISTENING = false;
 		console.log("Error while listening: " + event.error);
 	};
-	CN_SPEECHREC.onresult = (event) => {
+	SPEECHREC.onresult = (event) => {
 		console.timeEnd('s2t')
 		var final_transcript = "";
 		for (let i = event.resultIndex; i < event.results.length; ++i) {
@@ -677,39 +749,39 @@ function CN_StartSpeechRecognition() {
 			return;
 		}
 
-		if (CN_RemovePunctuation(final_transcript) == CN_SAY_THIS_WORD_TO_STOP.toLowerCase().trim()) {
+		if (RemovePunctuation(final_transcript) == SAY_THIS_WORD_TO_STOP.toLowerCase().trim()) {
 
-			if (CN_CONVERSATION_SUSPENDED) {
+			if (CONVERSATION_SUSPENDED) {
 				console.log("Conversation is currently suspended, voice command ignored. Use the pause word to resume conversation.");
 				return;
 			}
 
-			console.log("You said '" + CN_SAY_THIS_WORD_TO_STOP + "'. Conversation ended");
-			CN_FINISHED = true;
-			CN_PAUSED = false;
-			CN_SPEECHREC.stop();
-			CN_SayOutLoud("Bye bye");
+			console.log("You said '" + SAY_THIS_WORD_TO_STOP + "'. Conversation ended");
+			FINISHED = true;
+			PAUSED = false;
+			SPEECHREC.stop();
+			SayOutLoud("Bye bye");
 			alert("Conversation ended. Click the Start button to resume");
 
 			// Show start button, hide action buttons
-			jQuery(".CNStartZone").show();
-			jQuery(".CNActionButtons").hide();
+			jQuery(".StartZone").show();
+			jQuery(".ActionButtons").hide();
 
 			return;
-		} else if (CN_RemovePunctuation(final_transcript) == CN_SAY_THIS_WORD_TO_PAUSE.toLowerCase().trim()
+		} else if (RemovePunctuation(final_transcript) == SAY_THIS_WORD_TO_PAUSE.toLowerCase().trim()
 			|| // Below: allow to say the pause word twice
-			CN_RemovePunctuation(final_transcript) == (CN_SAY_THIS_WORD_TO_PAUSE.toLowerCase().trim() + " " + CN_SAY_THIS_WORD_TO_PAUSE.toLowerCase().trim())
+			RemovePunctuation(final_transcript) == (SAY_THIS_WORD_TO_PAUSE.toLowerCase().trim() + " " + SAY_THIS_WORD_TO_PAUSE.toLowerCase().trim())
 		) {
 
 			// Conversation was suspended: resume it
-			if (CN_CONVERSATION_SUSPENDED) {
-				console.log("You said '" + CN_SAY_THIS_WORD_TO_PAUSE + "' - Conversation resumed");
-				CN_ResumeAfterSuspension();
+			if (CONVERSATION_SUSPENDED) {
+				console.log("You said '" + SAY_THIS_WORD_TO_PAUSE + "' - Conversation resumed");
+				ResumeAfterSuspension();
 				return;
 			}
 
 			// Conversation wasn't suspended;
-			console.log("You said '" + CN_SAY_THIS_WORD_TO_PAUSE + "' - Conversation paused");
+			console.log("You said '" + SAY_THIS_WORD_TO_PAUSE + "' - Conversation paused");
 
 			// Make a beep sound
 			setTimeout(function () {
@@ -719,187 +791,125 @@ function CN_StartSpeechRecognition() {
 			}, 100);
 
 			// Do we keep listening?
-			if (CN_KEEP_LISTENING) {
+			if (KEEP_LISTENING) {
 
 				// Yes, don't stop mic, just stop conversation
-				CN_CONVERSATION_SUSPENDED = true;
-				CN_TIMEOUT_FLASHBAR = setTimeout(function () {
-					CN_FlashRedBar();
+				CONVERSATION_SUSPENDED = true;
+				TIMEOUT_FLASHBAR = setTimeout(function () {
+					FlashRedBar();
 				}, 500);
 
 				// Show suspend area
-				jQuery("#CNSuspendedArea").show();
+				jQuery("#SuspendedArea").show();
 
 				return;
 
 			} else {
 				// No, stop mic, resume when OK button is clicked
-				CN_PAUSED = true;
-				if (CN_SPEECHREC) CN_SPEECHREC.stop();
+				PAUSED = true;
+				if (SPEECHREC) SPEECHREC.stop();
 				alert("Conversation paused, the browser is no longer listening. Click OK to resume");
-				CN_PAUSED = false;
+				PAUSED = false;
 				console.log("Conversation resumed");
 			}
 
 			return;
-		} else if (CN_RemovePunctuation(final_transcript) == CN_SAY_THIS_TO_SEND.toLowerCase().trim() && !CN_AUTO_SEND_AFTER_SPEAKING) {
+		} else if (RemovePunctuation(final_transcript) == SAY_THIS_TO_SEND.toLowerCase().trim() && !AUTO_SEND_AFTER_SPEAKING) {
 
-			if (CN_CONVERSATION_SUSPENDED) {
+			if (CONVERSATION_SUSPENDED) {
 				console.log("Conversation is currently suspended, voice command ignored. Use the pause word to resume conversation.");
 				return;
 			}
 
-			console.log("You said '" + CN_SAY_THIS_TO_SEND + "' - the message will be sent");
+			console.log("You said '" + SAY_THIS_TO_SEND + "' - the message will be sent");
 
 			// Click button
 			jQuery("#prompt-textarea").closest("div").find("button").click();
 
 			// Stop speech recognition until the answer is received
-			if (CN_SPEECHREC) {
-				clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-				CN_SPEECHREC.stop();
+			if (SPEECHREC) {
+				clearTimeout(TIMEOUT_KEEP_SPEECHREC_WORKING);
+				SPEECHREC.stop();
 			}
 
 			return;
 		}
 
 		// Are we speaking?
-		if (CN_CONVERSATION_SUSPENDED) {
+		if (CONVERSATION_SUSPENDED) {
 			console.log("Conversation is currently suspended, voice command ignored. Use the pause word to resume conversation.");
 			return;
 		}
 
 		// Send the message
-		CN_SendMessage(final_transcript);
+		SendMessage(final_transcript);
 	};
-	if (!CN_IS_LISTENING && CN_SPEECH_REC_SUPPORTED && !CN_SPEECHREC_DISABLED && !CN_IS_READING) CN_SPEECHREC.start();
-	clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-	CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
-}
-
-// Make sure the speech recognition is turned on when the bot is not speaking
-function CN_KeepSpeechRecWorking() {
-	if (CN_FINISHED) return; // Conversation finished
-	clearTimeout(CN_TIMEOUT_KEEP_SPEECHREC_WORKING);
-	CN_TIMEOUT_KEEP_SPEECHREC_WORKING = setTimeout(CN_KeepSpeechRecWorking, 100);
-	if (!CN_IS_READING && !CN_IS_LISTENING && !CN_PAUSED) {
-		if (!CN_SPEECHREC && !CN_IS_READING)
-			CN_StartSpeechRecognition();
-		else {
-			if (!CN_IS_LISTENING) {
-				try {
-					if (CN_SPEECH_REC_SUPPORTED && !window.speechSynthesis.speaking && !CN_SPEECHREC_DISABLED && !CN_IS_READING)
-						CN_SPEECHREC.start();
-				} catch (e) { }
-			}
-		}
-	}
+	if (!IS_LISTENING && SPEECH_REC_SUPPORTED && !SPEECHREC_DISABLED && !IS_READING) SPEECHREC.start();
+	StartSpeechRecognition();
 }
 
 // Toggle button clicks: settings, pause, skip...
-function CN_ToggleButtonClick() {
+function ToggleButtonClick() {
 	var action = $(this).data("cn");
 	switch (action) {
 
 		// Open settings menu
 		case "settings":
-			CN_OnSettingsIconClick();
-			return;
-
-		// The microphone is on. Turn it off
-		case "micon":
-			// Show other icon and hide this one
-			$(this).css("display", "none");
-			$(".CNToggle[data-cn=micoff]").css("display", "");
-
-			// Disable speech rec
-			CN_SPEECHREC_DISABLED = true;
-			if (CN_SPEECHREC && CN_IS_LISTENING) CN_SPEECHREC.stop();
-
-			return;
-
-		// The microphone is off. Turn it on
-		case "micoff":
-			// Show other icon and hide this one
-			$(this).css("display", "none");
-			$(".CNToggle[data-cn=micon]").css("display", "");
-
-			// Enable speech rec
-			CN_SPEECHREC_DISABLED = false;
-			if (CN_SPEECHREC && !CN_IS_LISTENING && !CN_IS_READING) CN_SPEECHREC.start();
-
+			OnSettingsIconClick();
 			return;
 
 		// The bot's voice is on. Turn it off
-		case "speakon":
+		case "boton":
+			// Disable speech rec
+			SPEECHREC_DISABLED = true;
+			if (SPEECHREC && IS_LISTENING) SPEECHREC.stop();
+
 			// Show other icon and hide this one
 			$(this).css("display", "none");
-			$(".CNToggle[data-cn=speakoff]").css("display", "");
-			CN_SPEAKING_DISABLED = true;
+			$(".Toggle[data-cn=botoff]").css("display", "");
+			SPEAKING_DISABLED = true;
 
-			// Is there anything in the CN_TTS_ELEVENLABS_QUEUE ? clear it
-			if (CN_TTS_ELEVENLABS_QUEUE.length) {
-				CN_TTS_ELEVENLABS_QUEUE = [];
-				if (CN_CURRENT_AUDIO) CN_CURRENT_AUDIO.pause();
-				CN_CURRENT_AUDIO = null;
-				CN_IS_PLAYING = false;
-				CN_IS_READING = false;
-				CN_IS_CONVERTING = false;
+			// Is there anything in the TTS_ELEVENLABS_QUEUE ? clear it
+			if (TTS_ELEVENLABS_QUEUE.length) {
+				TTS_ELEVENLABS_QUEUE = [];
+				if (CURRENT_AUDIO) CURRENT_AUDIO.pause();
+				CURRENT_AUDIO = null;
+				IS_PLAYING = false;
+				IS_READING = false;
+				IS_CONVERTING = false;
 			}
 
 			// Stop current message (equivalent to 'skip')
 			window.speechSynthesis.pause(); // Pause, and then...
 			window.speechSynthesis.cancel(); // Cancel everything
-			CN_CURRENT_MESSAGE = null; // Remove current message
+			CURRENT_MESSAGE = null; // Remove current message
 
 			// Restart listening maybe?
-			if (!CN_SPEECHREC_DISABLED) {
+			if (!SPEECHREC_DISABLED) {
 				setTimeout(function () {
-					CN_AfterSpeakOutLoudFinished();
+					AfterSpeakOutLoudFinished();
 				}, 100);
 			}
 
 			return;
 
 		// The bot's voice is off. Turn it on
-		case "speakoff":
+		case "botoff":
+			// Enable speech rec
+			SPEECHREC_DISABLED = false;
+			if (SPEECHREC && !IS_LISTENING && !IS_READING) SPEECHREC.start();
+
 			// Show other icon and hide this one
 			$(this).css("display", "none");
-			$(".CNToggle[data-cn=speakon]").css("display", "");
-			CN_SPEAKING_DISABLED = false;
-
-			return;
-
-		// Skip current message being read
-		case "skip":
-
-			// Is there anything in the CN_TTS_ELEVENLABS_QUEUE ?  clear it
-			if (CN_TTS_ELEVENLABS_QUEUE.length) {
-				CN_TTS_ELEVENLABS_QUEUE = [];
-				if (CN_CURRENT_AUDIO) CN_CURRENT_AUDIO.pause();
-				CN_CURRENT_AUDIO = null;
-				CN_IS_PLAYING = false;
-				CN_IS_READING = false;
-				CN_IS_CONVERTING = false;
-			}
-
-			window.speechSynthesis.pause(); // Pause, and then...
-			window.speechSynthesis.cancel(); // Cancel everything
-			CN_CURRENT_MESSAGE = null; // Remove current message
-
-			// Restart listening maybe?
-			if (!CN_SPEECHREC_DISABLED) {
-				setTimeout(function () {
-					CN_AfterSpeakOutLoudFinished();
-				}, 100);
-			}
+			$(".Toggle[data-cn=boton]").css("display", "");
+			SPEAKING_DISABLED = false;
 
 			return;
 	}
 }
 
 
-function CN_SetTextareaValue(text) {
+function SetTextareaValue(text) {
 	const textarea = jQuery("#prompt-textarea")[0];
 	function setNativeValue(element, value) {
 		const { set: valueSetter } = Object.getOwnPropertyDescriptor(element, 'value') || {}
@@ -919,85 +929,70 @@ function CN_SetTextareaValue(text) {
 }
 
 // Start Talk-to-ChatGPT (Start button)
-function CN_StartTTGPT() {
+function StartTTGPT() {
 	// Play sound & start
 	var snd = new Audio("data:audio/mpeg;base64,//OEZAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAAKAAAIuAAYGBgYGBgYGBgYSEhISEhISEhISGxsbGxsbGxsbGyEhISEhISEhISEmZmZmZmZmZmZmbGxsbGxsbGxsbHJycnJycnJycnJ3t7e3t7e3t7e3vz8/Pz8/Pz8/Pz///////////8AAAA5TEFNRTMuOTlyAm4AAAAALgkAABRGJAN7TgAARgAACLgWvfqPAAAAAAAAAAAAAAAAAAAA//OEZAANCD9CBqyIAA5QAlGfQBAALXMbhty2HqnTHRXLvlpzEEMYYxhAUA0BNMAimSibLJ1SG8oEGNHLvp1xprEUCDBwMHw/iAMYPg+D6BACAIYPg+D6AQDEucg+/48H3/gcHwf/5cHAQBA5/KBjB8P//+sH31Ag6D4fggZCAXRUBgQDg/KAgCAYB8/DCgQ4nfBAzB/lAQd/wTB8/8oCYPh/DH/5cHwfP//8Hwff///UCAIeUDD1IAAADUAHQt4F//PEZAkcRgU6i85YACR0DlBXjIgAILcTDAFlTJq1IDRkYwLadS3pTAps7AngjQYEBJgQIJuiRVA07PbA3Hn9Ax+h7Awki/Ay5GxA0EhiAwPh2AwhBTAzSDrAaAcAuAILXiZAwZB6BEB0nSqBjoDaCIBpBmCw0LfRSQlIMvE95d8xLpFTIvEW//MSKiNAzLJLqDLw5qXWMyQ59ExSSMkUTFL//8gQs4ho5orUV4B4Bx1EyRUZUmvuKwV7frMQ7qS90klooqSSWiipJJaP//9dqNaHqROlwvIlkmUg/Ig6VGkktFH1lrQzA3//zXfNj4AD2AGEKBQA0wlCkvlgJjoex9J/FkhKj8dxXBjCbEtGVI82K4zCJHl86REvE0bmg6ibUJSR4N4W4zX0klrR//rGkf86QUe/UUS90tHdL//+iYnC8RYPxCCC5DEumqX2Cy09/zIZYk/v6lffo9W3Wvbst1LvWtFDWuOWYxXh2En/9/Jx1lkh5lX/90VFZo/kBPOW//OkZAAS3c8kP+7UABF7snm/wjgDAAkAFpIFhqPKo6AhgCACxnBX4pmTAakungjIYGA4BinMRxXMVyCMSAxMkixMViiMkggMyh/NDTOMvgeMg1oN56CA9pFwNCDkAQGAYXCwGDQII2EBROrF1J4+C8kr/X///+kkLOPkVIKi3////1e3t0N9qkSVJ0yNv///7df62fWv63r/+lzJNFvZlo3VtRJknQqGlo0f3FCAB0B0VNTpuBCuqK0mbnZL+aPDZuB5E3/////6KOkx81f//////f6zWNVjV////1/XX//1////1/5tFIrAXj35Yx+lmJYCHAZEAXqiPKsokmTlPGypW580wUDDFoTSkTv2DRpQSMzOZ0MdqAzKATHqEOCP//OEZC4QsdMeL2uFVI7qLmmWEAsq00spzVhNMlAkqBQFApg0iyth0SOLaP/Zv/fZk//UAQUWHf/6f/9W6URbN812d2FVI3VXZX3r86t1X/77f0si0rtVbKmkpEojfTEDiqDZkMFEiNQbGdzfooADA8jSfQ1HX7SORBwB2OQa/o5m1/9AGMY3//////r6tfriRj31dF3/11M7nytn/AobaLuE6Q8GjKn01QPjjvgsAz43sy8OEwRsOlFkeTCCs0wZ//N0ZBcNhD8gLjzbBA1Qcl1eAEwMN4KTSoc0hhAsgYXmG/xhmwmYSgmZrZEYqx37x6uQ/k9P8VPFf9rvp9LD/el7UvAQbQwpBEYZCDd9K7p5NaBdJNVqy72CiYuODIo9xiEQKlAkekLDCxHgHo9bmvc4pxzxbTAZA8rf///8W///3Hpaix7WWKSpPInv+vu4sMVc+4hLqvsWWECRbeihamQX2hFe+rhj//OEZAgN6d0YBWwjjo6YBoY+AEQCjZ5V3cp48zckDjFQ9CccWrAybOXNDIx82eVERQdjNGTqBmgSpjNVt/L///8v//6///////+us3L6//n7ZQi8+Vd530+s0yhGaaHu2xquS3bOvIKJyMiUMk7r2SGsc5zBqSgr3IPfPsACtIBgBrZfwXWca1l//+u/////p8rjEmpTz5/Xqi99IULOCZ4SAVTPotHi+3vSkG2iELJcLAcQ2AFdQEeEAByQUg7Z//OEZAkMmd0aajdiOI4wbk5eAFgQ9/vUy7D7CIRFgMyYKMCERDIAQFMEYzOi4yUAEIBIbclt89v////1/+///////917f6//t/qu/Xe/u609ab5NHZ7UJKXIrHdDlFuiI1rEFEGm2Oo7nKKUC9MxGJBxiABhQAK0EI/zzoy4AxIRqq1j63q/u/////+1yhKm6EXC3fVaKirLKlYqLC0ay7ff/Z9LWXTvVtUBmMgAkQelypXttxfp6R0KMQPwoABU//N0ZBYMtZsaKkNlRI4wbkQeAF6A9U7MuhDSSplDphpBiotnOQ6K6mYj/3yf///9fb/////Rd1+un79PTahz1RNLOiOXMtNrSEYjM9dqXiA7Ho2xNtGH2dXwBkmp3MWNy78L1uQACoA2x7CYr0dgFIbI3d/6/////9Sppyg2KCiSZtHuetZVVrlUJ9jNiKZvckU1U1JTz8WJLiZ81UopyAA2222MAEi2//OUZAoQFOs3LxnpL44YZm2+AExLLKPIBYQmjiLiW4npRZpeNCZieppVJ2Je9J9WqN4mJZGAaZwHmgTiOk5kSiVwpxQJxweEoqCwycLkBOYPmSUVEJYuURoDZoyiQljqi6Bh7LSFEqkuuw25plEqskvBtz2WoqpJqTYe7StNIlQJpplWS/b9a/76/+AehKSW2wABMIjKTqtkwcCkZlnhNAYslK1XWemvUOWREqog9UlVVKq4lXKqqxT31dfTS7/////t+kxBTUUzLjk5LjWqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//MUZCwAAAEcAAAAAAAAAggAAAAAqqqq");
 	snd.play();
-	CN_FINISHED = false;
 
 	// Hide start button, show action buttons
-	jQuery(".CNStartZone").hide();
-	jQuery(".CNActionButtons").show();
+	jQuery(".StartZone").hide();
+	jQuery(".ActionButtons").show();
 
-	setTimeout(function () {
-		// Start speech rec
-		CN_StartSpeechRecognition();
+	// Start speech rec
+	StartSpeechRecognition();
 
-		// Make sure message count starts from last; we don't want to read the latest message
-		var currentMessageCount = jQuery(".text-base").length;
-		if (currentMessageCount > CN_MESSAGE_COUNT) {
-			// New message!
-			CN_MESSAGE_COUNT = currentMessageCount;
-			CN_CURRENT_MESSAGE = null; // Set current message to null
-		}
-
-		// Check for new messages
-		CN_CheckNewMessages();
-	}, 250);
+	// Make sure message count starts from last; we don't want to read the latest message
+	var MESSAGE_COUNT = jQuery(".text-base").length;
 }
 
 // Check we are on the correct page
-function CN_CheckCorrectPage() {
+function CheckCorrectPage() {
 	console.log("Checking we are on the correct page...");
 	var wrongPage = jQuery("#prompt-textarea").length == 0; // no textarea... login page?
 
 	if (wrongPage) {
 		// We are on the wrong page, keep checking
-		setTimeout(CN_CheckCorrectPage, 1000);
+		setTimeout(CheckCorrectPage, 1000);
 	} else {
 		// We are on the right page, let's go!
-		CN_InitScript();
+		InitScript();
 	}
 }
 
 // Perform initialization after jQuery is loaded
-function CN_InitScript() {
+function InitScript() {
+	cleanInit();
 	if (typeof $ === null || typeof $ === undefined) $ = jQuery;
 
 	var warning = "";
 	if ('webkitSpeechRecognition' in window) {
 		console.log("Speech recognition API supported");
-		CN_SPEECH_REC_SUPPORTED = true;
+		SPEECH_REC_SUPPORTED = true;
 	} else {
 		console.log("speech recognition API not supported.");
-		CN_SPEECH_REC_SUPPORTED = false;
+		SPEECH_REC_SUPPORTED = false;
 		warning = "\n\nWARNING: speech recognition (speech-to-text) is only available in Chromium-based browsers - desktop version at the moment. If you are using another browser, you will not be able to dictate text, but you can still listen to the bot's responses.";
 	}
 
 	// Restore settings
-	CN_RestoreSettings();
+	RestoreSettings();
 
 	// Wait on voices to be loaded before fetching list
 	window.speechSynthesis.onvoiceschanged = function () {
-		if (!CN_WANTED_VOICE_NAME) {
+		if (!WANTED_VOICE_NAME) {
 			console.log("Reading with default browser voice");
 		} else {
 			speechSynthesis.getVoices().forEach(function (voice) {
 				//console.log("Found possible voice: " + voice.name + " (" + voice.lang + ")");
-				if (voice.lang + "-" + voice.name == CN_WANTED_VOICE_NAME) {
-					CN_WANTED_VOICE = voice;
+				if (voice.lang + "-" + voice.name == WANTED_VOICE_NAME) {
+					WANTED_VOICE = voice;
 					console.log("I will read using voice " + voice.name + " (" + voice.lang + ")");
 					return false;
 				}
 			});
-			if (!CN_WANTED_VOICE)
-				console.log("No voice found for '" + CN_WANTED_VOICE_NAME + "', reading with default browser voice");
+			if (!WANTED_VOICE)
+				console.log("No voice found for '" + WANTED_VOICE_NAME + "', reading with default browser voice");
 		}
-
-		// Voice OK
-		setTimeout(function () {
-			//CN_SayOutLoud("OK");
-		}, 1000);
 	};
 
 	// Add icons on the top right corner
@@ -1019,42 +1014,36 @@ function CN_InitScript() {
 		"<div>" +
 
 		// Start button
-		"<div style='font-size: 16px; padding: 8px;' class='CNStartZone'>" +
-		"<button style='border: 2px solid grey; padding: 6px 40px; margin: 6px; border-radius: 6px; opacity: 0.7;' id='CNStartButton' title='ALT+SHIFT+S'><i class=\"fa-solid fa-play\"></i>&nbsp;&nbsp;START</button>" +
+		"<div style='font-size: 16px; padding: 8px;' class='StartZone'>" +
+		"<button style='border: 2px solid grey; padding: 6px 40px; margin: 6px; border-radius: 6px; opacity: 0.7;' id='StartButton' title='ALT+SHIFT+S'><i class=\"fa-solid fa-play\"></i>&nbsp;&nbsp;START</button>" +
 		"</div>" +
 
 		// Action buttons
-		"<div style='font-size: 20px; padding: 12px 8px; padding-bottom: 0px; display:none;' class='CNActionButtons'>" +
+		"<div style='font-size: 20px; padding: 12px 8px; padding-bottom: 0px; display:none;' class='ActionButtons'>" +
 		"<table width='100%' cellpadding=0 cellspacing=0><tr>" +
 		"<td width='24%' style='text-align: center;'>" +
-		"<span class='CNToggle' title='Voice recognition enabled. Click to disable. (Shortcut: ALT+SHIFT+H)' data-cn='micon' style='opacity: 0.7;'><i class=\"fa-solid fa-microphone\"></i></span>" + // Microphone enabled
-		"<span class='CNToggle' title='Voice recognition disabled. Click to enable. (Shortcut: ALT+SHIFT+H)' style='display:none; color: red; opacity: 0.7;' data-cn='micoff'><i class=\"fa-solid fa-microphone-slash\"></i></span>" + // Microphone disabled
 		"</td>" +
-		"<td width='1%' style='border-left: 1px solid grey; padding-left: 0 !important; padding-right: 0 !important; font-size: 1px; width: 1px;'>&nbsp;</td>" +
 		"<td width='24%' style='text-align: center;'>" +
-		"<span class='CNToggle' title='Text-to-speech (bot voice) enabled. Click to disable. This will skip the current message entirely. (Shortcut: ALT+SHIFT+V)' data-cn='speakon' style='opacity: 0.7;'><i class=\"fa-solid fa-volume-high\"></i></span>" + // Speak out loud
-		"<span class='CNToggle' title='Text-to-speech (bot voice) disabled. Click to enable. (Shortcut: ALT+SHIFT+V)' style='display:none; color: red; opacity: 0.7;' data-cn='speakoff'><i class=\"fa-solid fa-volume-xmark\"></i></span>  " + // Mute
+		"<span class='Toggle' title='Text-to-speech (bot voice) enabled. Click to disable. This will skip the current message entirely. (Shortcut: ALT+SHIFT+V)' data-cn='boton' style='opacity: 0.7;'><i class=\"fa-solid fa-volume-high\"></i></span>" + // Speak out loud
+		"<span class='Toggle' title='Text-to-speech (bot voice) disabled. Click to enable. (Shortcut: ALT+SHIFT+V)' style='display:none; color: red; opacity: 0.7;' data-cn='botoff'><i class=\"fa-solid fa-volume-xmark\"></i></span>  " + // Mute
 		"</td>" +
-		"<td width='1%' style='border-left: 1px solid grey; padding-left: 0 !important; padding-right: 0 !important; font-size: 1px; width: 1px;'>&nbsp;</td>" +
 		"<td width='24%' style='text-align: center;'>" +
-		"<span class='CNToggle' title='Skip the message currently being read by the bot. (Shortcut: ALT+SHIFT+L)' data-cn='skip' style='opacity: 0.7;'><i class=\"fa-solid fa-angles-right\"></i></span>" + // Skip
 		"</td>" +
-		"<td width='1%' style='border-left: 1px solid grey; padding-left: 0 !important; padding-right: 0 !important; font-size: 1px; width: 1px;'>&nbsp;</td>" +
 		"<td width='24%' style='text-align: center;'>" +
-		"<span class='CNToggle' title='Open settings menu to change bot voice, language, and other settings' data-cn='settings' style='opacity: 0.7;'><i class=\"fa-solid fa-sliders\"></i></span>" + // Settings
+		"<span class='Toggle' title='Open settings menu to change bot voice, language, and other settings' data-cn='settings' style='opacity: 0.7;'><i class=\"fa-solid fa-sliders\"></i></span>" + // Settings
 		"</td>" +
 		"</tr></table>" +
 
 		// Colored bar - transparent by default, red when mic on, green when bot speaks
 		"<div style='padding-top: 12px; padding-bottom: 6px;'>" +
-		"<div id='CNStatusBar' style='background: grey; width: 100%; height: 8px; border-radius: 4px; overflow: hidden;'>&nbsp;</div>" +
+		"<div id='StatusBar' style='background: grey; width: 100%; height: 8px; border-radius: 4px; overflow: hidden;'>&nbsp;</div>" +
 		"</div>" +
 
 		// Pause bar - click button to resume
-		"<div style='padding-top: 12px; padding-bottom: 12px; display: none;' id='CNSuspendedArea'>" +
+		"<div style='padding-top: 12px; padding-bottom: 12px; display: none;' id='SuspendedArea'>" +
 		"<div style='font-size: 11px; color: grey;'><b>CONVERSATION PAUSED</b><br />Click button below or speak the pause word to resume</div>" +
 		"<div style='padding: 10px;'>" +
-		"<button style='font-size: 13px; border: 2px solid grey; padding: 6px 40px; margin: 6px; border-radius: 6px; opacity: 0.7;' id='CNResumeButton'><i class=\"fa-solid fa-play\"></i>&nbsp;&nbsp;RESUME</button>" +
+		"<button style='font-size: 13px; border: 2px solid grey; padding: 6px 40px; margin: 6px; border-radius: 6px; opacity: 0.7;' id='ResumeButton'><i class=\"fa-solid fa-play\"></i>&nbsp;&nbsp;RESUME</button>" +
 		"</div>" +
 		"</div>" +
 
@@ -1063,103 +1052,53 @@ function CN_InitScript() {
 		"</div>"
 	);
 
-	setTimeout(function () {
-		// Try and get voices
-		speechSynthesis.getVoices();
+	// Try and get voices
+	speechSynthesis.getVoices();
 
-		// Make icons clickable
-		jQuery(".CNToggle").css("cursor", "pointer");
-		jQuery(".CNToggle").on("click", CN_ToggleButtonClick);
-		jQuery("#CNStartButton").on("click", CN_StartTTGPT);
-		jQuery("#CNResumeButton").on("click", CN_ResumeAfterSuspension);
+	// Make icons clickable
+	jQuery(".Toggle").css("cursor", "pointer");
+	jQuery(".Toggle").on("click", ToggleButtonClick);
+	jQuery("#StartButton").on("click", StartTTGPT);
+	jQuery("#ResumeButton").on("click", ResumeAfterSuspension);
 
-		// Make icons change opacity on hover
-		jQuery(".CNToggle, #CNStartButton, #CNResumeButton").on("mouseenter", function () { jQuery(this).css("opacity", 1); });
-		jQuery(".CNToggle, #CNStartButton, #CNResumeButton").on("mouseleave", function () { jQuery(this).css("opacity", 0.7); });
-		jQuery(document).on("mouseenter", ".TTGPTSave, .TTGPTCancel", function () { jQuery(this).css("opacity", 1); });
-		jQuery(document).on("mouseleave", ".TTGPTSave, .TTGPTCancel", function () { jQuery(this).css("opacity", 0.7); });
+	// Make icons change opacity on hover
+	jQuery(".Toggle, #StartButton, #ResumeButton").on("mouseenter", function () { jQuery(this).css("opacity", 1); });
+	jQuery(".Toggle, #StartButton, #ResumeButton").on("mouseleave", function () { jQuery(this).css("opacity", 0.7); });
+	jQuery(document).on("mouseenter", ".TTGPTSave, .TTGPTCancel", function () { jQuery(this).css("opacity", 1); });
+	jQuery(document).on("mouseleave", ".TTGPTSave, .TTGPTCancel", function () { jQuery(this).css("opacity", 0.7); });
 
-		// Make TTGPTSettings draggable
-		jQuery("#TTGPTSettings").mousedown(function (e) {
-			window.my_dragging = {};
-			my_dragging.pageX0 = e.pageX;
-			my_dragging.pageY0 = e.pageY;
-			my_dragging.elem = this;
-			my_dragging.offset0 = $(this).offset();
-			function handle_dragging(e) {
-				var left = my_dragging.offset0.left + (e.pageX - my_dragging.pageX0);
-				var top = my_dragging.offset0.top + (e.pageY - my_dragging.pageY0);
-				jQuery(my_dragging.elem).css('right', '');
-				jQuery(my_dragging.elem)
-					.offset({ top: top, left: left });
-			}
-			function handle_mouseup(e) {
-				jQuery('body')
-					.off('mousemove', handle_dragging)
-					.off('mouseup', handle_mouseup);
-			}
+	// Make TTGPTSettings draggable
+	jQuery("#TTGPTSettings").mousedown(function (e) {
+		window.my_dragging = {};
+		my_dragging.pageX0 = e.pageX;
+		my_dragging.pageY0 = e.pageY;
+		my_dragging.elem = this;
+		my_dragging.offset0 = $(this).offset();
+		function handle_dragging(e) {
+			var left = my_dragging.offset0.left + (e.pageX - my_dragging.pageX0);
+			var top = my_dragging.offset0.top + (e.pageY - my_dragging.pageY0);
+			jQuery(my_dragging.elem).css('right', '');
+			jQuery(my_dragging.elem)
+				.offset({ top: top, left: left });
+		}
+		function handle_mouseup(e) {
 			jQuery('body')
-				.on('mouseup', handle_mouseup)
-				.on('mousemove', handle_dragging);
-		});
-	}, 100);
-
-	// Start key detection
-	jQuery(document).on('keydown', function (e) {
-		// Conversation suspended? don't do anything
-		if (CN_CONVERSATION_SUSPENDED) return;
-
-		// ALT+SHIFT+S: Start
-		if (e.altKey && e.shiftKey && e.which === 83) {
-			console.log('ALT+SHIFT+S pressed, starting Talk-To-ChatGPT');
-			CN_StartTTGPT();
+				.off('mousemove', handle_dragging)
+				.off('mouseup', handle_mouseup);
 		}
-
-		// ALT+SHIFT+H: Hush
-		if (e.altKey && e.shiftKey && e.which === 72) {
-			// Is the current mode 'micon' or 'micoff'?
-			var wantMicOff = jQuery(".CNToggle[data-cn=micon]").css("display") == "none";
-			if (wantMicOff) {
-				// Turn off bot voice
-				console.log('ALT+SHIFT+H pressed, turning off speech recognition');
-				jQuery(".CNToggle[data-cn=micoff]").click();
-			} else {
-				// Turn on bot voice
-				console.log('ALT+SHIFT+H pressed, turning on speech recognition');
-				jQuery(".CNToggle[data-cn=micon]").click();
-			}
-		}
-
-		// ALT+SHIFT+V: suspend bot Voice
-		if (e.altKey && e.shiftKey && e.which === 86) {
-			// Is the current mode 'speakon' or 'speakoff'?
-			var wantSpeakOff = jQuery(".CNToggle[data-cn=speakon]").css("display") == "none";
-			if (wantSpeakOff) {
-				// Turn off bot voice
-				console.log('ALT+SHIFT+V pressed, turning bot voice off');
-				jQuery(".CNToggle[data-cn=speakoff]").click();
-			} else {
-				// Turn on bot voice
-				console.log('ALT+SHIFT+V pressed, turning bot voice on');
-				jQuery(".CNToggle[data-cn=speakon]").click();
-			}
-		}
-
-		// ALT+SHIFT+L: skip current message
-		if (e.altKey && e.shiftKey && e.which === 76) {
-			console.log('ALT+SHIFT+L pressed, skipping current message');
-			jQuery(".CNToggle[data-cn=skip]").click();
-		}
+		jQuery('body')
+			.on('mouseup', handle_mouseup)
+			.on('mousemove', handle_dragging);
 	});
 }
 
 // Open settings menu
-function CN_OnSettingsIconClick() {
+function OnSettingsIconClick() {
 	console.log("Opening settings menu");
 
 	// Stop listening
-	CN_PAUSED = true;
-	if (CN_SPEECHREC) CN_SPEECHREC.stop();
+	PAUSED = true;
+	if (SPEECHREC) SPEECHREC.stop();
 
 	// A short text at the beginning
 	var desc = "<div style='text-align: left; margin: 8px;'>" +
@@ -1177,51 +1116,51 @@ function CN_OnSettingsIconClick() {
 	speechSynthesis.getVoices().forEach(function (voice) {
 		var label = `${voice.name} (${voice.lang})`;
 		if (voice.default) label += ' — DEFAULT';
-		var SEL = (CN_WANTED_VOICE && CN_WANTED_VOICE.lang == voice.lang && CN_WANTED_VOICE.name == voice.name) ? "selected=selected" : "";
+		var SEL = (WANTED_VOICE && WANTED_VOICE.lang == voice.lang && WANTED_VOICE.name == voice.name) ? "selected=selected" : "";
 		voices += "<option value='" + n + "' " + SEL + ">" + label + "</option>";
 		n++;
 	});
 
-	// 4. Speech recognition language CN_WANTED_LANGUAGE_SPEECH_REC
+	// 4. Speech recognition language WANTED_LANGUAGE_SPEECH_REC
 	var languages = "<option value=''></option>";
-	for (var i in CN_SPEECHREC_LANGS) {
-		var languageName = CN_SPEECHREC_LANGS[i][0];
-		for (var j in CN_SPEECHREC_LANGS[i]) {
+	for (var i in SPEECHREC_LANGS) {
+		var languageName = SPEECHREC_LANGS[i][0];
+		for (var j in SPEECHREC_LANGS[i]) {
 			if (j == 0) continue;
-			var languageCode = CN_SPEECHREC_LANGS[i][j][0];
-			var SEL = languageCode == CN_WANTED_LANGUAGE_SPEECH_REC ? "selected='selected'" : "";
+			var languageCode = SPEECHREC_LANGS[i][j][0];
+			var SEL = languageCode == WANTED_LANGUAGE_SPEECH_REC ? "selected='selected'" : "";
 			languages += "<option value='" + languageCode + "' " + SEL + ">" + languageName + " - " + languageCode + "</option>";
 		}
 	}
 	rows += "<tr><td style='white-space: nowrap'>Speech recognition language:</td><td><select id='TTGPTRecLang' style='width: 250px; padding: 2px; color: black;' >" + languages + "</select></td></tr>";
 
-	rows += "<tr class='CNBrowserTTS' ><td style='white-space: nowrap'>AI voice and language:</td><td><select id='TTGPTVoice' style='width: 250px; padding: 2px; color: black'>" + voices + "</select></td></tr>";
+	rows += "<tr class='BrowserTTS' ><td style='white-space: nowrap'>AI voice and language:</td><td><select id='TTGPTVoice' style='width: 250px; padding: 2px; color: black'>" + voices + "</select></td></tr>";
 
 	// 2. AI talking speed
-	rows += "<tr class='CNBrowserTTS' ><td style='white-space: nowrap'>AI talking speed (speech rate):</td><td><input type=number step='.1' id='TTGPTRate' style='color: black; padding: 2px; width: 100px;' value='" + CN_TEXT_TO_SPEECH_RATE + "' /></td></tr>";
+	rows += "<tr class='BrowserTTS' ><td style='white-space: nowrap'>AI talking speed (speech rate):</td><td><input type=number step='.1' id='TTGPTRate' style='color: black; padding: 2px; width: 100px;' value='" + TEXT_TO_SPEECH_RATE + "' /></td></tr>";
 
 	// 3. AI voice pitch
-	rows += "<tr class='CNBrowserTTS' ><td style='white-space: nowrap'>AI voice pitch:</td><td><input type=number step='.1' id='TTGPTPitch' style='width: 100px; padding: 2px; color: black;' value='" + CN_TEXT_TO_SPEECH_PITCH + "' /></td></tr>";
+	rows += "<tr class='BrowserTTS' ><td style='white-space: nowrap'>AI voice pitch:</td><td><input type=number step='.1' id='TTGPTPitch' style='width: 100px; padding: 2px; color: black;' value='" + TEXT_TO_SPEECH_PITCH + "' /></td></tr>";
 
 	// 4. ElevenLabs
-	rows += "<tr><td style='white-space: nowrap'>ElevenLabs text-to-speech:</td><td><input type=checkbox id='TTGPTElevenLabs' " + (CN_TTS_ELEVENLABS ? "checked=checked" : "") + " /> <label for='TTGPTElevenLabs'> Use ElevenLabs API for text-to-speech (tick this to reveal additional settings)</label></td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>ElevenLabs text-to-speech:</td><td><input type=checkbox id='TTGPTElevenLabs' " + (TTS_ELEVENLABS ? "checked=checked" : "") + " /> <label for='TTGPTElevenLabs'> Use ElevenLabs API for text-to-speech (tick this to reveal additional settings)</label></td></tr>";
 
 	// 5. ElevenLabs API key
-	rows += "<tr class='CNElevenLabs' style='display: none;'><td style='white-space: nowrap'>ElevenLabs API Key:</td><td><input type=text style='width: 250px; padding: 2px; color: black;' id='TTGPTElevenLabsKey' value=\"" + (CN_TTS_ELEVENLABS_APIKEY) + "\" /></td></tr>";
+	rows += "<tr class='ElevenLabs' style='display: none;'><td style='white-space: nowrap'>ElevenLabs API Key:</td><td><input type=text style='width: 250px; padding: 2px; color: black;' id='TTGPTElevenLabsKey' value=\"" + (TTS_ELEVENLABS_APIKEY) + "\" /></td></tr>";
 
 	// 6. ElevenLabs voice
-	rows += "<tr class='CNElevenLabs' style='display: none;'><td style='white-space: nowrap'>ElevenLabs voice:</td><td><select id='TTGPTElevenLabsVoice' style='width: 250px; padding: 2px; color: black;' >" + "</select> <span style='cursor: pointer; text-decoration: underline;' id='TTGPTElevenLabsRefresh' title='This will refresh the list of voices using your API key'>Refresh list</span></span></td></tr>";
+	rows += "<tr class='ElevenLabs' style='display: none;'><td style='white-space: nowrap'>ElevenLabs voice:</td><td><select id='TTGPTElevenLabsVoice' style='width: 250px; padding: 2px; color: black;' >" + "</select> <span style='cursor: pointer; text-decoration: underline;' id='TTGPTElevenLabsRefresh' title='This will refresh the list of voices using your API key'>Refresh list</span></span></td></tr>";
 
 	// 7. ElevenLabs settings
-	rows += "<tr class='CNElevenLabs' style='display: none;'><td style='white-space: nowrap'>ElevenLabs settings:</td>" +
+	rows += "<tr class='ElevenLabs' style='display: none;'><td style='white-space: nowrap'>ElevenLabs settings:</td>" +
 		"<td>" +
-		"Stability: <input type=number style='width: 100px; padding: 2px; color: black;' step='0.01' min='0' max='1' id='TTGPTElevenLabsStability' value=\"" + (CN_TTS_ELEVENLABS_STABILITY) + "\" />" +
-		"Similarity: <input type=number style='width: 100px; padding: 2px; color: black;' step='0.01' min='0' max='1' id='TTGPTElevenLabsSimilarity' value=\"" + (CN_TTS_ELEVENLABS_SIMILARITY) + "\" />" +
+		"Stability: <input type=number style='width: 100px; padding: 2px; color: black;' step='0.01' min='0' max='1' id='TTGPTElevenLabsStability' value=\"" + (TTS_ELEVENLABS_STABILITY) + "\" />" +
+		"Similarity: <input type=number style='width: 100px; padding: 2px; color: black;' step='0.01' min='0' max='1' id='TTGPTElevenLabsSimilarity' value=\"" + (TTS_ELEVENLABS_SIMILARITY) + "\" />" +
 		"<br />Leave blank for default, or set a number between 0 and 1 (example: 0.75)"
 	"</td></tr>";
 
 	// 7. ElevenLabs warning
-	rows += "<tr class='CNElevenLabs' style='display: none;'><td colspan=2>Warning: the ElevenLabs API is experimental. It doesn't work with every language, make sure you check the list of supported language from their website. We will keep up with ElevenLabs progress to ensure all ElevenLabs API functionality is available in Talk-to-ChatGPT.</td></tr>";
+	rows += "<tr class='ElevenLabs' style='display: none;'><td colspan=2>Warning: the ElevenLabs API is experimental. It doesn't work with every language, make sure you check the list of supported language from their website. We will keep up with ElevenLabs progress to ensure all ElevenLabs API functionality is available in Talk-to-ChatGPT.</td></tr>";
 
 	// Prepare save/close buttons
 	rows += "<tr><td colspan=2 style='text-align: center'><br />" +
@@ -1233,19 +1172,19 @@ function CN_OnSettingsIconClick() {
 	rows += "<table width='100%' cellpadding=6 cellspacing=2 style='margin-top: 15px;'>";
 
 	// 5. 'Stop' word
-	rows += "<tr><td style='white-space: nowrap'>'Stop' word:</td><td><input type=text id='TTGPTStopWord' style='width: 100px; padding: 2px; color: black;' value='" + CN_SAY_THIS_WORD_TO_STOP + "' /></td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>'Stop' word:</td><td><input type=text id='TTGPTStopWord' style='width: 100px; padding: 2px; color: black;' value='" + SAY_THIS_WORD_TO_STOP + "' /></td></tr>";
 
 	// 6. 'Pause' word
-	rows += "<tr><td style='white-space: nowrap'>'Pause' word:</td><td><input type=text id='TTGPTPauseWord' style='width: 100px; padding: 2px; color: black;' value='" + CN_SAY_THIS_WORD_TO_PAUSE + "' /></td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>'Pause' word:</td><td><input type=text id='TTGPTPauseWord' style='width: 100px; padding: 2px; color: black;' value='" + SAY_THIS_WORD_TO_PAUSE + "' /></td></tr>";
 
 	// 7. Keep listening until resume
-	rows += "<tr><td style='white-space: nowrap'>Keep listening when paused:</td><td><input type=checkbox id='TTGPTKeepListening' " + (CN_KEEP_LISTENING ? "checked=checked" : "") + " /> <label for='TTGPTKeepListening'>When paused, keep the microphone open, and resume conversation when the 'pause' word (defined above) is spoken</label></td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>Keep listening when paused:</td><td><input type=checkbox id='TTGPTKeepListening' " + (KEEP_LISTENING ? "checked=checked" : "") + " /> <label for='TTGPTKeepListening'>When paused, keep the microphone open, and resume conversation when the 'pause' word (defined above) is spoken</label></td></tr>";
 
 	// 8. Autosend
-	rows += "<tr><td style='white-space: nowrap'>Automatic send:</td><td><input type=checkbox id='TTGPTAutosend' " + (CN_AUTO_SEND_AFTER_SPEAKING ? "checked=checked" : "") + " /> <label for='TTGPTAutosend'>Automatically send message to ChatGPT after speaking</label></td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>Automatic send:</td><td><input type=checkbox id='TTGPTAutosend' " + (AUTO_SEND_AFTER_SPEAKING ? "checked=checked" : "") + " /> <label for='TTGPTAutosend'>Automatically send message to ChatGPT after speaking</label></td></tr>";
 
 	// 9. Manual send word
-	rows += "<tr><td style='white-space: nowrap'>Manual send word(s):</td><td><input type=text id='TTGPTSendWord' style='width: 250px; padding: 2px; color: black;' value='" + CN_SAY_THIS_TO_SEND + "' /><span style='font-size: 10px;'>If 'automatic send' is disabled, you can trigger the sending of the message by saying this word (or sequence of words)</span></td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>Manual send word(s):</td><td><input type=text id='TTGPTSendWord' style='width: 250px; padding: 2px; color: black;' value='" + SAY_THIS_TO_SEND + "' /><span style='font-size: 10px;'>If 'automatic send' is disabled, you can trigger the sending of the message by saying this word (or sequence of words)</span></td></tr>";
 
 	// Prepare save/close buttons
 	rows += "<tr><td colspan=2 style='text-align: center'><br />" +
@@ -1257,18 +1196,10 @@ function CN_OnSettingsIconClick() {
 	rows += "<table width='100%' cellpadding=6 cellspacing=2 style='margin-top: 15px;'>";
 
 	// 10. Split sentences with commas
-	rows += "<tr><td style='white-space: nowrap'>Punctuation in sentences:</td><td><input type=checkbox id='TTGPTIgnoreCommas' " + (CN_IGNORE_COMMAS ? "checked=checked" : "") + " /> <label for='TTGPTIgnoreCommas'>Don't use commas/semicolons/etc. to break down replies into sentences</label></td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>Punctuation in sentences:</td><td><input type=checkbox id='TTGPTIgnoreCommas' " + (IGNORE_COMMAS ? "checked=checked" : "") + " /> <label for='TTGPTIgnoreCommas'>Don't use commas/semicolons/etc. to break down replies into sentences</label></td></tr>";
 
 	// 11. Ignore code blocks
-	rows += "<tr><td style='white-space: nowrap'>Ignore code blocks:</td><td><input type=checkbox id='TTGPTIgnoreCode' " + (CN_IGNORE_CODE_BLOCKS ? "checked=checked" : "") + " /> <label for='TTGPTIgnoreCode'>Don't read blocks of code out loud (ignore them altogether)</label></td></tr>";
-
-	// Keyboard shortcuts
-	rows += "<tr><td style='white-space: nowrap'>Keyboard shortcuts:</td><td><ul>" +
-		"<li>ALT+SHIFT+S: <u>S</u>tart Talk-To-ChatGPT</li>" +
-		"<li>ALT+SHIFT+H: suspend/resume speech recognition (<u>H</u>ush)</li>" +
-		"<li>ALT+SHIFT+V: suspend/resume bot's voice (<u>V</u>oice)</li>" +
-		"<li>ALT+SHIFT+L: skip current message (<u>L</u>eap)</li>" +
-		"</ul></td></tr>";
+	rows += "<tr><td style='white-space: nowrap'>Ignore code blocks:</td><td><input type=checkbox id='TTGPTIgnoreCode' " + (IGNORE_CODE_BLOCKS ? "checked=checked" : "") + " /> <label for='TTGPTIgnoreCode'>Don't read blocks of code out loud (ignore them altogether)</label></td></tr>";
 
 	// Prepare save/close buttons
 	rows += "<tr><td colspan=2 style='text-align: center'><br />" +
@@ -1288,106 +1219,102 @@ function CN_OnSettingsIconClick() {
 		"<div style='width: 600px; margin-left: auto; margin-right: auto; overflow-y: auto;'><h1>⚙️ Talk-to-ChatGPT settings</h1>" + desc + rows + donations + "</div></div>");
 
 	// Assign events
-	setTimeout(function () {
-		jQuery(".TTGPTSave").on("click", CN_SaveSettings);
-		jQuery(".TTGPTCancel").on("click", CN_CloseSettingsDialog);
+	jQuery(".TTGPTSave").on("click", SaveSettings);
+	jQuery(".TTGPTCancel").on("click", CloseSettingsDialog);
 
-		// Is ElevenLabs enabled? toggle visibility, refresh voice list
-		if (CN_TTS_ELEVENLABS) {
-			jQuery(".CNElevenLabs").show();
-			jQuery(".CNBrowserTTS").hide();
-			CN_RefreshElevenLabsVoiceList(true);
-		} else {
-			jQuery(".CNElevenLabs").hide();
-			jQuery(".CNBrowserTTS").show();
+	// Is ElevenLabs enabled? toggle visibility, refresh voice list
+	if (TTS_ELEVENLABS) {
+		jQuery(".ElevenLabs").show();
+		jQuery(".BrowserTTS").hide();
+		RefreshElevenLabsVoiceList(true);
+	} else {
+		jQuery(".ElevenLabs").hide();
+		jQuery(".BrowserTTS").show();
+	}
+
+	// When the ElevenLabs option is changed
+	jQuery("#TTGPTElevenLabs").on("change", function () {
+		if (jQuery(this).prop("checked")) {
+			jQuery(".ElevenLabs").show();
+			jQuery(".BrowserTTS").hide();
+			RefreshElevenLabsVoiceList(true);
 		}
+		else {
+			jQuery(".ElevenLabs").hide();
+			jQuery(".BrowserTTS").show();
+		}
+	});
 
-		// When the ElevenLabs option is changed
-		jQuery("#TTGPTElevenLabs").on("change", function () {
-			if (jQuery(this).prop("checked")) {
-				jQuery(".CNElevenLabs").show();
-				jQuery(".CNBrowserTTS").hide();
-				CN_RefreshElevenLabsVoiceList(true);
-			}
-			else {
-				jQuery(".CNElevenLabs").hide();
-				jQuery(".CNBrowserTTS").show();
-			}
-		});
+	// When the 'Refresh list' button is clicked
+	jQuery("#TTGPTElevenLabsRefresh").on("click", function () {
+		RefreshElevenLabsVoiceList(true);
+	});
 
-		// When the 'Refresh list' button is clicked
-		jQuery("#TTGPTElevenLabsRefresh").on("click", function () {
-			CN_RefreshElevenLabsVoiceList(true);
-		});
-
-		// When the API key is changed
-		jQuery("#TTGPTElevenLabsKey").on("change", function () {
-			CN_RefreshElevenLabsVoiceList(true);
-		});
-
-
-	}, 100);
+	// When the API key is changed
+	jQuery("#TTGPTElevenLabsKey").on("change", function () {
+		RefreshElevenLabsVoiceList(true);
+	});
 }
 
 // Save settings and close dialog box
-function CN_SaveSettings() {
+function SaveSettings() {
 
 	// Save settings
 	try {
 		// AI voice settings: voice/language, rate, pitch
 		var wantedVoiceIndex = jQuery("#TTGPTVoice").val();
 		var allVoices = speechSynthesis.getVoices();
-		CN_WANTED_VOICE = allVoices[wantedVoiceIndex];
-		CN_WANTED_VOICE_NAME = CN_WANTED_VOICE ? CN_WANTED_VOICE.lang + "-" + CN_WANTED_VOICE.name : "";
-		CN_TEXT_TO_SPEECH_RATE = Number(jQuery("#TTGPTRate").val());
-		CN_TEXT_TO_SPEECH_PITCH = Number(jQuery("#TTGPTPitch").val());
+		WANTED_VOICE = allVoices[wantedVoiceIndex];
+		WANTED_VOICE_NAME = WANTED_VOICE ? WANTED_VOICE.lang + "-" + WANTED_VOICE.name : "";
+		TEXT_TO_SPEECH_RATE = Number(jQuery("#TTGPTRate").val());
+		TEXT_TO_SPEECH_PITCH = Number(jQuery("#TTGPTPitch").val());
 
 		// Speech recognition settings: language, stop, pause
-		CN_WANTED_LANGUAGE_SPEECH_REC = jQuery("#TTGPTRecLang").val();
-		CN_SAY_THIS_WORD_TO_STOP = CN_RemovePunctuation(jQuery("#TTGPTStopWord").val());
-		CN_SAY_THIS_WORD_TO_PAUSE = CN_RemovePunctuation(jQuery("#TTGPTPauseWord").val());
-		CN_KEEP_LISTENING = jQuery("#TTGPTKeepListening").prop("checked");
-		CN_AUTO_SEND_AFTER_SPEAKING = jQuery("#TTGPTAutosend").prop("checked");
-		CN_SAY_THIS_TO_SEND = CN_RemovePunctuation(jQuery("#TTGPTSendWord").val());
-		CN_IGNORE_COMMAS = jQuery("#TTGPTIgnoreCommas").prop("checked");
-		CN_IGNORE_CODE_BLOCKS = jQuery("#TTGPTIgnoreCode").prop("checked");
+		WANTED_LANGUAGE_SPEECH_REC = jQuery("#TTGPTRecLang").val();
+		SAY_THIS_WORD_TO_STOP = RemovePunctuation(jQuery("#TTGPTStopWord").val());
+		SAY_THIS_WORD_TO_PAUSE = RemovePunctuation(jQuery("#TTGPTPauseWord").val());
+		KEEP_LISTENING = jQuery("#TTGPTKeepListening").prop("checked");
+		AUTO_SEND_AFTER_SPEAKING = jQuery("#TTGPTAutosend").prop("checked");
+		SAY_THIS_TO_SEND = RemovePunctuation(jQuery("#TTGPTSendWord").val());
+		IGNORE_COMMAS = jQuery("#TTGPTIgnoreCommas").prop("checked");
+		IGNORE_CODE_BLOCKS = jQuery("#TTGPTIgnoreCode").prop("checked");
 
 		// ElevenLabs
-		CN_TTS_ELEVENLABS = jQuery("#TTGPTElevenLabs").prop("checked");
-		CN_TTS_ELEVENLABS_APIKEY = CN_RemovePunctuation(jQuery("#TTGPTElevenLabsKey").val() + "");
-		CN_TTS_ELEVENLABS_VOICE = jQuery("#TTGPTElevenLabsVoice").val() + "";
-		CN_TTS_ELEVENLABS_STABILITY = jQuery("#TTGPTElevenLabsStability").val();
-		CN_TTS_ELEVENLABS_SIMILARITY = jQuery("#TTGPTElevenLabsSimilarity").val();
+		TTS_ELEVENLABS = jQuery("#TTGPTElevenLabs").prop("checked");
+		TTS_ELEVENLABS_APIKEY = RemovePunctuation(jQuery("#TTGPTElevenLabsKey").val() + "");
+		TTS_ELEVENLABS_VOICE = jQuery("#TTGPTElevenLabsVoice").val() + "";
+		TTS_ELEVENLABS_STABILITY = jQuery("#TTGPTElevenLabsStability").val();
+		TTS_ELEVENLABS_SIMILARITY = jQuery("#TTGPTElevenLabsSimilarity").val();
 
 		// If ElevenLabs is active, and that there is no voice, error out
-		if (CN_TTS_ELEVENLABS && !CN_TTS_ELEVENLABS_VOICE) {
+		if (TTS_ELEVENLABS && !TTS_ELEVENLABS_VOICE) {
 			alert("To enable ElevenLabs support, you must select a voice in the dropdown list. Click the Refresh List button. If no voice appears in the list, check your API key. If you are 100% sure your API key is valid, please report the issue on the Github project page, on the Issues tab.");
 			return;
 		}
 
 		// Apply language to speech recognition instance
-		if (CN_SPEECHREC) CN_SPEECHREC.lang = CN_WANTED_LANGUAGE_SPEECH_REC;
+		if (SPEECHREC) SPEECHREC.lang = WANTED_LANGUAGE_SPEECH_REC;
 
 		// Save settings in cookie
 		var settings = [
-			CN_WANTED_VOICE_NAME,
-			CN_TEXT_TO_SPEECH_RATE,
-			CN_TEXT_TO_SPEECH_PITCH,
-			CN_WANTED_LANGUAGE_SPEECH_REC,
-			CN_SAY_THIS_WORD_TO_STOP,
-			CN_SAY_THIS_WORD_TO_PAUSE,
-			CN_AUTO_SEND_AFTER_SPEAKING ? 1 : 0,
-			CN_SAY_THIS_TO_SEND,
-			CN_IGNORE_COMMAS ? 1 : 0,
-			CN_KEEP_LISTENING ? 1 : 0,
-			CN_IGNORE_CODE_BLOCKS ? 1 : 0,
-			CN_TTS_ELEVENLABS ? 1 : 0,
-			CN_TTS_ELEVENLABS_APIKEY,
-			CN_TTS_ELEVENLABS_VOICE,
-			CN_TTS_ELEVENLABS_STABILITY,
-			CN_TTS_ELEVENLABS_SIMILARITY
+			WANTED_VOICE_NAME,
+			TEXT_TO_SPEECH_RATE,
+			TEXT_TO_SPEECH_PITCH,
+			WANTED_LANGUAGE_SPEECH_REC,
+			SAY_THIS_WORD_TO_STOP,
+			SAY_THIS_WORD_TO_PAUSE,
+			AUTO_SEND_AFTER_SPEAKING ? 1 : 0,
+			SAY_THIS_TO_SEND,
+			IGNORE_COMMAS ? 1 : 0,
+			KEEP_LISTENING ? 1 : 0,
+			IGNORE_CODE_BLOCKS ? 1 : 0,
+			TTS_ELEVENLABS ? 1 : 0,
+			TTS_ELEVENLABS_APIKEY,
+			TTS_ELEVENLABS_VOICE,
+			TTS_ELEVENLABS_STABILITY,
+			TTS_ELEVENLABS_SIMILARITY
 		];
-		CN_SetCookie("CN_TTGPT", JSON.stringify(settings));
+		SetCookie("TTGPT", JSON.stringify(settings));
 	} catch (e) { alert('Invalid settings values. ' + e.toString()); return; }
 
 	// Close dialog
@@ -1395,32 +1322,32 @@ function CN_SaveSettings() {
 	jQuery("#TTGPTSettingsArea").remove();
 
 	// Resume listening
-	CN_PAUSED = false;
+	PAUSED = false;
 }
 
 // Restore settings from cookie
-function CN_RestoreSettings() {
-	var settingsRaw = CN_GetCookie("CN_TTGPT");
+function RestoreSettings() {
+	var settingsRaw = GetCookie("TTGPT");
 	try {
 		var settings = JSON.parse(settingsRaw);
 		if (typeof settings == "object" && settings != null) {
 			console.log("Reloading settings from cookie: " + settings);
-			CN_WANTED_VOICE_NAME = settings[0];
-			CN_TEXT_TO_SPEECH_RATE = settings[1];
-			CN_TEXT_TO_SPEECH_PITCH = settings[2];
-			CN_WANTED_LANGUAGE_SPEECH_REC = settings[3];
-			CN_SAY_THIS_WORD_TO_STOP = settings[4];
-			CN_SAY_THIS_WORD_TO_PAUSE = settings[5];
-			if (settings.hasOwnProperty(6)) CN_AUTO_SEND_AFTER_SPEAKING = settings[6] == 1;
-			if (settings.hasOwnProperty(7)) CN_SAY_THIS_TO_SEND = settings[7];
-			if (settings.hasOwnProperty(8)) CN_IGNORE_COMMAS = settings[8] == 1;
-			if (settings.hasOwnProperty(9)) CN_KEEP_LISTENING = settings[9] == 1;
-			if (settings.hasOwnProperty(10)) CN_IGNORE_CODE_BLOCKS = settings[10] == 1;
-			if (settings.hasOwnProperty(11)) CN_TTS_ELEVENLABS = settings[11] == 1;
-			if (settings.hasOwnProperty(12)) CN_TTS_ELEVENLABS_APIKEY = settings[12];
-			if (settings.hasOwnProperty(13)) CN_TTS_ELEVENLABS_VOICE = settings[13];
-			if (settings.hasOwnProperty(14)) CN_TTS_ELEVENLABS_STABILITY = settings[14];
-			if (settings.hasOwnProperty(15)) CN_TTS_ELEVENLABS_SIMILARITY = settings[15];
+			WANTED_VOICE_NAME = settings[0];
+			TEXT_TO_SPEECH_RATE = settings[1];
+			TEXT_TO_SPEECH_PITCH = settings[2];
+			WANTED_LANGUAGE_SPEECH_REC = settings[3];
+			SAY_THIS_WORD_TO_STOP = settings[4];
+			SAY_THIS_WORD_TO_PAUSE = settings[5];
+			if (settings.hasOwnProperty(6)) AUTO_SEND_AFTER_SPEAKING = settings[6] == 1;
+			if (settings.hasOwnProperty(7)) SAY_THIS_TO_SEND = settings[7];
+			if (settings.hasOwnProperty(8)) IGNORE_COMMAS = settings[8] == 1;
+			if (settings.hasOwnProperty(9)) KEEP_LISTENING = settings[9] == 1;
+			if (settings.hasOwnProperty(10)) IGNORE_CODE_BLOCKS = settings[10] == 1;
+			if (settings.hasOwnProperty(11)) TTS_ELEVENLABS = settings[11] == 1;
+			if (settings.hasOwnProperty(12)) TTS_ELEVENLABS_APIKEY = settings[12];
+			if (settings.hasOwnProperty(13)) TTS_ELEVENLABS_VOICE = settings[13];
+			if (settings.hasOwnProperty(14)) TTS_ELEVENLABS_STABILITY = settings[14];
+			if (settings.hasOwnProperty(15)) TTS_ELEVENLABS_SIMILARITY = settings[15];
 		}
 	} catch (ex) {
 		console.error(ex);
@@ -1428,23 +1355,23 @@ function CN_RestoreSettings() {
 }
 
 // Close dialog: remove area altogether
-function CN_CloseSettingsDialog() {
+function CloseSettingsDialog() {
 	console.log("Closing settings dialog");
 	jQuery("#TTGPTSettingsArea").remove();
 
 	// Resume listening
-	CN_PAUSED = false;
+	PAUSED = false;
 }
 
 // Remove punctuation in a sentence. This function was written by ChatGPT on the 9th of April 2023. Thanks Chatty!
-function CN_RemovePunctuation(str) {
+function RemovePunctuation(str) {
 	const regexPonctuation = /[\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-./:;<=>?@\[\]^_`{|}~]/g;
 	str = str.replace(regexPonctuation, '') + "";
 	return str.toLowerCase().trim();
 }
 
 // Sets a cookie
-function CN_SetCookie(name, value) {
+function SetCookie(name, value) {
 	var days = 365;
 	var date = new Date();
 	date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -1453,7 +1380,7 @@ function CN_SetCookie(name, value) {
 }
 
 // Reads a cookie
-function CN_GetCookie(name) {
+function GetCookie(name) {
 	var nameEQ = encodeURIComponent(name) + "=";
 	var ca = document.cookie.split(';');
 	for (var i = 0; i < ca.length; i++) {
@@ -1467,7 +1394,7 @@ function CN_GetCookie(name) {
 }
 
 // Refresh ElevenLabs voice list using current API key
-function CN_RefreshElevenLabsVoiceList(useKeyFromTextField) {
+function RefreshElevenLabsVoiceList(useKeyFromTextField) {
 	// Show loading thingy
 	jQuery("#TTGPTElevenLabsRefresh").html("...");
 
@@ -1476,7 +1403,7 @@ function CN_RefreshElevenLabsVoiceList(useKeyFromTextField) {
 	xhr.open("GET", "https://api.elevenlabs.io/v1/voices");
 	xhr.setRequestHeader("Accept", "application/json");
 	xhr.setRequestHeader("Content-Type", "application/json");
-	var apikey = useKeyFromTextField ? jQuery("#TTGPTElevenLabsKey").val() : CN_TTS_ELEVENLABS_APIKEY;
+	var apikey = useKeyFromTextField ? jQuery("#TTGPTElevenLabsKey").val() : TTS_ELEVENLABS_APIKEY;
 	if (apikey) xhr.setRequestHeader("xi-api-key", apikey);
 
 	// What happens when we receive the server response
@@ -1508,13 +1435,13 @@ function CN_RefreshElevenLabsVoiceList(useKeyFromTextField) {
 
 			// Build list of models
 			var found = false;
-			for (var modelId in CN_TTS_ELEVENLABS_MODELS) {
-				var modelName = CN_TTS_ELEVENLABS_MODELS[modelId];
+			for (var modelId in TTS_ELEVENLABS_MODELS) {
+				var modelName = TTS_ELEVENLABS_MODELS[modelId];
 				optionList += "<optgroup label=\"" + modelName + "\">";
 				for (var i = 0; i < result.voices.length; i++) {
 					var name = result.voices[i].name;
 					var id = modelId + "." + result.voices[i].voice_id;
-					var sel = id == CN_TTS_ELEVENLABS_VOICE ? "selected=selected" : ""; // Restore selected voice
+					var sel = id == TTS_ELEVENLABS_VOICE ? "selected=selected" : ""; // Restore selected voice
 					if (sel) found = true;
 					optionList += "<option value='" + id + "' " + sel + ">" + name + "</option>";
 				}
@@ -1523,8 +1450,8 @@ function CN_RefreshElevenLabsVoiceList(useKeyFromTextField) {
 			jQuery("#TTGPTElevenLabsVoice").html(optionList);
 
 			// The voice previously selected no longer seems to exist
-			if (CN_TTS_ELEVENLABS_VOICE && !found)
-				alert("The voice previously selected in the settings doesn't seem to be available in your ElevenLabs account anymore. Please select a new voice in the settings to restore ElevenLabs support. Voice ID: " + CN_TTS_ELEVENLABS_VOICE);
+			if (TTS_ELEVENLABS_VOICE && !found)
+				alert("The voice previously selected in the settings doesn't seem to be available in your ElevenLabs account anymore. Please select a new voice in the settings to restore ElevenLabs support. Voice ID: " + TTS_ELEVENLABS_VOICE);
 		}
 	};
 
@@ -1535,17 +1462,14 @@ function CN_RefreshElevenLabsVoiceList(useKeyFromTextField) {
 // MAIN ENTRY POINT
 // Load jQuery, then run initialization function
 (function () {
-
-	setTimeout(function () {
-		typeof jQuery == "undefined" ?
-			alert("[Talk-to-ChatGPT] Sorry, but jQuery was not able to load. The script cannot run. Try using Google Chrome or Edge on Windows 11") :
-			CN_CheckCorrectPage();
-	}, 500);
+	typeof jQuery == "undefined" ?
+		alert("[Talk-to-ChatGPT] Sorry, but jQuery was not able to load. The script cannot run. Try using Google Chrome or Edge on Windows 11") :
+		CheckCorrectPage();
 
 })();
 
 // List of languages for speech recognition - Pulled from https://www.google.com/intl/en/chrome/demos/speech.html
-var CN_SPEECHREC_LANGS =
+var SPEECHREC_LANGS =
 	[['Afrikaans', ['af-ZA']],
 	['አማርኛ', ['am-ET']],
 	['Azərbaycanca', ['az-AZ']],
@@ -1640,7 +1564,7 @@ var CN_SPEECHREC_LANGS =
 	['Српски', ['sr-RS']],
 	['Українська', ['uk-UA']],
 	['한국어', ['ko-KR']],
-	['中文', ['cmn-Hans-CN', '普通话 (中国大陆)'],
+	['中文', ['cmn-Hans-', '普通话 (中国大陆)'],
 		['cmn-Hans-HK', '普通话 (香港)'],
 		['cmn-Hant-TW', '中文 (台灣)'],
 		['yue-Hant-HK', '粵語 (香港)']],
