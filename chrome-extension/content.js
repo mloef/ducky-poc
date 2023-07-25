@@ -19,53 +19,53 @@ function SayOutLoud(text) {
 
 // Check for new messages the bot has sent. If a new message is found, it will be read out loud
 function finishMessage(lastMessage) {
-	var currentText = $(".sc-30feab15-3:last").text();
+	var currentText = $(".ReactMarkdown:last").text();
 
 	if (currentText == lastMessage) {
-		console.log("Complete new message detected:", currentText);
-		currentText = currentText.slice(currentText.indexOf(" ") + 1);
-		console.log("Removed first word", currentText);
+		//console.log("Complete new message detected:", currentText);
+		currentText = currentText.slice(currentText.indexOf(".") + 1);
+		//console.log("Removed first sentence", currentText);
 
 		SayOutLoud(currentText);
 	} else {
-		setTimeout(function () { finishMessage(currentText) }, 100); //TODO: find right value for this
+		setTimeout(function () { finishMessage(currentText) }, 200); //TODO: find right value for this
 	}
 }
 
 // Check for new messages the bot has sent. If a new message is found, it will be read out loud
 function CheckNewMessages(replyCount, lastMessage = '') {
 	// Any new messages?
-	const currentMessageCount = $(".sc-30feab15-3").length;
-	//console.log('currentMessageCount', currentMessageCount)
-	//console.log('replyCount', replyCount)
+	const currentMessageCount = $(".ReactMarkdown").length;
+	console.log('currentMessageCount', currentMessageCount)
+	console.log('replyCount', replyCount)
 
 	if (currentMessageCount > replyCount) {
 		// New message
-		var currentText = $(".sc-30feab15-3:last").text();
+		var currentText = $(".ReactMarkdown:last").text();
 
 		if (currentText.length > 1 && currentText == lastMessage) {
-			console.log("Complete new message detected without space");
+			//console.log("Complete new message detected without period");
 
 			SayOutLoud(currentText);
-		} else if (currentText.includes(" ")) {
-			console.log("saying first word", currentText.split(" ")[0]);
+		} else if (currentText.includes(".")) {
+			//console.log("saying first sentence", currentText.split(".")[0]);
 
-			SayOutLoud(currentText.split(" ")[0]);
-			setTimeout(function () { finishMessage(currentText) }, 100); //TODO: find right value for this
+			SayOutLoud(currentText.split(".")[0]);
+			setTimeout(function () { finishMessage(currentText) }, 200); //TODO: find right value for this
 		} else {
-			console.log('no first word yet')
-			setTimeout(function () { CheckNewMessages(replyCount, currentText) }, 100); //TODO: find right value for this
+			//console.log('no first sentence yet')
+			setTimeout(function () { CheckNewMessages(replyCount, currentText) }, 200); //TODO: find right value for this
 		}
 	} else {
-		console.log('no message yet')
-		setTimeout(function () { CheckNewMessages(replyCount, currentText) }, 100); //TODO: find right value for this
+		//console.log('no message yet')
+		setTimeout(function () { CheckNewMessages(replyCount, currentText) }, 200); //TODO: find right value for this
 	}
 }
 
 // Send a message to the bot (will simply put text in the textarea and simulate a send button click)
 function SendMessage(text) {
 	//get current reply count
-	const currentMessageCount = $(".sc-30feab15-3").length;
+	const currentMessageCount = $(".ReactMarkdown").length;
 
 	$(".ProseMirror").text(function (index, existingText) {
 		return existingText + " " + text;
