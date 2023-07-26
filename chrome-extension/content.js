@@ -36,8 +36,8 @@ function finishMessage(lastMessage) {
 function CheckNewMessages(replyCount, lastMessage = '') {
 	// Any new messages?
 	const currentMessageCount = $(".ReactMarkdown").length;
-	console.log('currentMessageCount', currentMessageCount)
-	console.log('replyCount', replyCount)
+	//console.log('currentMessageCount', currentMessageCount)
+	//console.log('replyCount', replyCount)
 
 	if (currentMessageCount > replyCount) {
 		// New message
