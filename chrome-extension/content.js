@@ -1,5 +1,6 @@
 ﻿// This function will say the given text out loud using the browser's speech synthesis API, or send the message to the ElevenLabs conversion stack
 function SayOutLoud(text) {
+	console.time('t2s lag');
 	console.log("[BROWSER] Saying out loud: " + text);
 	const msg = new SpeechSynthesisUtterance();
 	msg.text = text;
@@ -10,6 +11,7 @@ function SayOutLoud(text) {
 		console.timeEnd('total');
 	};
 	msg.onend = () => {
+		console.timeEnd('t2s lag'); //just in case
 		console.log('ended speech');
 	}
 
@@ -19,7 +21,7 @@ function SayOutLoud(text) {
 
 // Check for new messages the bot has sent. If a new message is found, it will be read out loud
 function finishMessage(lastMessage) {
-	var currentText = $(".ReactMarkdown:last").text();
+	var currentText = $("div.group.md\\:px-4:last").text();
 
 	if (currentText == lastMessage) {
 		//console.log("Complete new message detected:", currentText);
@@ -35,29 +37,30 @@ function finishMessage(lastMessage) {
 // Check for new messages the bot has sent. If a new message is found, it will be read out loud
 function CheckNewMessages(replyCount, lastMessage = '') {
 	// Any new messages?
-	const currentMessageCount = $(".ReactMarkdown").length;
+	const currentMessageCount = $("div.group.md\\:px-4").length;
 	//console.log('currentMessageCount', currentMessageCount)
 	//console.log('replyCount', replyCount)
 
 	if (currentMessageCount > replyCount) {
 		// New message
-		var currentText = $(".ReactMarkdown:last").text();
+		var currentText = $("div.group.md\\:px-4:last").text();
 
 		if (currentText.length > 1 && currentText == lastMessage) {
-			//console.log("Complete new message detected without period");
+			console.log("Complete new message detected without period");
 
 			SayOutLoud(currentText);
 		} else if (currentText.includes(".")) {
-			//console.log("saying first sentence", currentText.split(".")[0]);
+			console.timeEnd('response');
+			console.log("saying first sentence", currentText.split(".")[0]);
 
 			SayOutLoud(currentText.split(".")[0]);
 			setTimeout(function () { finishMessage(currentText) }, 200); //TODO: find right value for this
 		} else {
-			//console.log('no first sentence yet')
+			console.log('no first sentence yet')
 			setTimeout(function () { CheckNewMessages(replyCount, currentText) }, 200); //TODO: find right value for this
 		}
 	} else {
-		//console.log('no message yet')
+		console.log('no message yet')
 		setTimeout(function () { CheckNewMessages(replyCount, currentText) }, 200); //TODO: find right value for this
 	}
 }
@@ -65,15 +68,16 @@ function CheckNewMessages(replyCount, lastMessage = '') {
 // Send a message to the bot (will simply put text in the textarea and simulate a send button click)
 function SendMessage(text) {
 	//get current reply count
-	const currentMessageCount = $(".ReactMarkdown").length;
+	const currentMessageCount = $("div.group.md\\:px-4").length;
 
-	$(".ProseMirror").text(function (index, existingText) {
-		return existingText + " " + text;
-	});
+	const textarea = $("textarea.m-0.w-full");
 
-	if (window.location.href.includes('claude.ai/chats')) {
+	textarea.val(text);
+	textarea[0].dispatchEvent(new Event('input', { bubbles: true }));
+
+	if (window.location.href.includes('claude.ai/chats')) { //todo: dead code for claude, remove
 		console.time('response');
-		console.log('sending message')
+		console.log('sending first message')
 		setTimeout(function () {
 			$("[data-value='new chat']").find("button").click();
 			CheckNewMessages(currentMessageCount + 1);
@@ -82,40 +86,36 @@ function SendMessage(text) {
 		console.time('response');
 		console.log('sending message')
 		setTimeout(function () {
-			$('button[aria-label="Send Message"]').click();
+			$("button.absolute.right-2.top-2").click();
 			CheckNewMessages(currentMessageCount + 1);
-		}, 1); //TODO: find best value for this
+		}, 10); //TODO: find best value for this
 	}
 }
 
 // Start speech recognition using the browser's speech recognition API
 function StartSpeechRecognition() {
 	var speechRec = new webkitSpeechRecognition();
-	speechRec.continuous = true;
 	speechRec.lang = 'en-US';
 	speechRec.start();
 	console.log("Speech recognition started");
 
 	speechRec.onstart = () => {
 		console.log("I'm listening");
-		console.time('s2t');
-		console.time('total');
 	};
 
 	speechRec.onend = () => {
 		console.log("I've stopped listening");
-		console.timeEnd('s2t');
-		console.timeEnd('total');
 		StartSpeechRecognition();
 	};
 
 	speechRec.onerror = (event) => {
 		console.log("Error while listening: " + event.error);
-		//StartSpeechRecognition();
 	};
 
 	speechRec.onresult = (event) => {
-		console.timeEnd('s2t')
+		//console.time('s2t');
+		console.time('total');
+		//console.timeEnd('s2t')
 		const final_transcript = event.results[event.results.length - 1][0].transcript;
 
 		console.log("Voice recognition: '" + (final_transcript) + "'");

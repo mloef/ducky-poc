@@ -1,20 +1,20 @@
 {
 	"manifest_version": 3,
-	"name": "Talk-to-Claude",
+	"name": "Goose",
 	"version": "0.0.1",
-	"description": "Talk to Claude through your microphone and hear its responses with a voice. Uses speech recognition and text-to-speech technologies",
+	"description": "Talk to models through your microphone and hear its responses with a voice. Uses speech recognition and text-to-speech technologies",
 	"action": {
 		"default_popup": "popup.html",
 		"default_icon": {              
 		  "16": "images/icon-16.png",
 		  "32": "images/icon-32.png"
 		},
-		"default_title": "Talk-to-Claude V0.0.1"
+		"default_title": "Goose V0.0.1"
 	},
 	"content_scripts":[
 		{
 			"matches":[
-				"https://claude.ai/chat*"
+				"http://localhost:3000/*"
 			],
 			"js": ["jquery.min.js", "fontawesome.min.js", "content.js"]
 		}
